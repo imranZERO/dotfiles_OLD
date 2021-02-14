@@ -1,0 +1,16 @@
+{
+	"caret_extra_bottom": 0,
+	"caret_extra_top": 0,
+	"caret_extra_width": 1,
+	"caret_style": "smooth",
+	"color_scheme": "Packages/Base16 Color Schemes/Themes/base16-ia-dark.tmTheme",
+	"font_face": "ubuntu mono",
+	"font_size": 12,
+	"gdi": true,
+	"ignored_packages":
+	[
+	],
+	"show_full_path": false,
+	"theme": "DevastateModeZ.sublime-theme",
+	"word_wrap": "true"
+}
