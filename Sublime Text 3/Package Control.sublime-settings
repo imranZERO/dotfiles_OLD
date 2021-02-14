@@ -1,0 +1,19 @@
+{
+	"bootstrapped": true,
+	"in_process_packages":
+	[
+	],
+	"installed_packages":
+	[
+		"ASCII Decorator",
+		"AutoPEP8",
+		"Base16 Color Schemes",
+		"Devastate Mode-Z",
+		"Emmet",
+		"GDScript (Godot Engine)",
+		"Package Control",
+		"PackageResourceViewer",
+		"SideBarEnhancements",
+		"Transparency"
+	]
+}
