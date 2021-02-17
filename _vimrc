@@ -1,28 +1,18 @@
-"------------------------------------------------------------
-" Features {{{1
-
-" Set 'nocompatible' to ward off unexpected things that your distro might
-" have made, as well as sanely reset options when re-sourcing .vimrc
 set nocompatible
-
-" Attempt to determine the type of a file based on its name and possibly its
-" contents. Use this to allow intelligent auto-indenting for each filetype,
-" and for plugins that are filetype specific.
 filetype indent plugin on
-
-" Enable syntax highlighting
 syntax on
 
-set encoding=utf-8
+" set guioptions -=m			" Hides the menubar in gvim
+" set guioptions-=r				" Hides the scrollbar in gvim
+set guioptions -=T				" Hides the toolbar in gvim
 
+set encoding=utf-8
 set noswapfile
 
 colo pablo
 
 "------------------------------------------------------------
 " Must have options {{{1
-"
-" These are highly recommended options.
 
 " Vim with default settings does not allow easy switching between multiple files
 " in the same editor window. Users can use multiple split windows or multiple
@@ -45,10 +35,7 @@ set hidden
 " set confirm
 " set autowriteall
 
-" Better command-line completion
 set wildmenu
-
-" Show partial commands in the last line of the screen
 set showcmd
 
 " Highlight searches (use <C-L> to temporarily turn off highlighting; see the
@@ -56,29 +43,15 @@ set showcmd
 set hlsearch
 set incsearch
 
-" Modelines have historically been a source of security vulnerabilities. As
-" such, it may be a good idea to disable them and use the securemodelines
-" script, <http://www.vim.org/scripts/script.php?script_id=1876>.
 " set nomodeline
 
-
 "------------------------------------------------------------
-" Usability options {{{1
-"
-" These are options that users frequently set in their .vimrc. Some of them
-" change Vim's behaviour in ways which deviate from the true Vi way, but
-" which are considered to add usability. Which, if any, of these options to
-" use is very much a personal preference, but they are harmless.
 
 " Use case insensitive search, except when using capital letters
 set ignorecase
 set smartcase
 
-" Allow backspacing over autoindent, line breaks and start of insert action
 set backspace=indent,eol,start
-
-" When opening a new line and no filetype-specific indenting is enabled, keep
-" the same indent as the line you're currently on. Useful for READMEs, etc.
 set autoindent
 set smartindent
 
@@ -109,11 +82,8 @@ set t_vb=
 " Enable use of the mouse for all modes
 set mouse=a
 
-" Set the command window height to 2 lines, to avoid many cases of having to
-" "press <Enter> to continue"
 set cmdheight=1
 
-" Display line numbers on the left
 set number
 set nu rnu
 
@@ -123,11 +93,8 @@ set notimeout ttimeout ttimeoutlen=200
 " Use <F11> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F11>
 
-
 "------------------------------------------------------------
 " Indentation options {{{1
-"
-" Indentation settings according to personal preference.
 
 " Indentation settings for using 4 spaces instead of tabs.
 " Do not change 'tabstop' from its default value of 8 with this setup.
@@ -143,8 +110,6 @@ set expandtab
 
 "------------------------------------------------------------
 " Mappings {{{1
-"
-" Useful mappings
 
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
 " which is the default
@@ -153,15 +118,6 @@ map Y y$
 " Map <C-L> (redraw screen) to also turn off search highlighting until the
 " next search
 nnoremap <C-L> :nohl<CR><C-L>
-
-
-" status bar colors -------------------------------------------
-au InsertEnter * hi statusline guifg=black guibg=#d7afff ctermfg=black ctermbg=magenta
-au InsertLeave * hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
-hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
-
-" Status line
-" default: set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %=\ %P%)
 
 "split navigations
 nnoremap <C-J> <C-W><C-J>
@@ -172,8 +128,14 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
+" status bar colors -------------------------------------------
+au InsertEnter * hi statusline guifg=black guibg=#d7afff ctermfg=black ctermbg=magenta
+au InsertLeave * hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
+hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
 
 "Status line stuff -------------------------------------------
+
+" default: set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %=\ %P%)
 
 set statusline=
 set statusline+=%#DiffAdd#%{(mode()=='n')?'\ \ NORMAL\ ':''}
@@ -181,19 +143,13 @@ set statusline+=%#DiffChange#%{(mode()=='i')?'\ \ INSERT\ ':''}
 set statusline+=%#DiffDelete#%{(mode()=='r')?'\ \ RPLACE\ ':''}
 set statusline+=%#Cursor#%{(mode()=='v')?'\ \ VISUAL\ ':''}
 set statusline+=\ %n\           " buffer number
-"set statusline+=%#Visual#       " colour
 set statusline+=%{&paste?'\ PASTE\ ':''}
 set statusline+=%{&spell?'\ SPELL\ ':''}
-"set statusline+=%#CursorIM#     " colour
 set statusline+=%R                        " readonly flag
 set statusline+=%M                        " modified [+] flag
-"set statusline+=%#Cursor#               " colour
-"set statusline+=%#CursorLine#     " colour
 set statusline+=\ %t\                   " short file name
 set statusline+=%=                          " right align
-"set statusline+=%#CursorLine#   " colour
 set statusline+=\ %Y\                   " file type
-"set statusline+=%#CursorIM#     " colour
 set statusline+=\ %3l:%-2c\         " line + column
 set statusline+=%#Cursor#       " colour
 set statusline+=\ %3p%%\                " percentage
