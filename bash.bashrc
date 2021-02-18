@@ -1,6 +1,8 @@
 # custom bash powerline script
 source ~/.config/.bash-powerline.sh
 
+alias cls='clear'
+
 # Check that we haven't already been sourced.
 ([[ -z ${CYG_SYS_BASHRC} ]] && CYG_SYS_BASHRC="1") || return
 
