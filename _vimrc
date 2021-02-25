@@ -1,6 +1,6 @@
 "	_                            ______ ___________ _____
 "	(_)                          |___  /|  ___| ___ \  _  |
-"	_ _ __ ___  _ __ __ _ _ __     / / | |__ | |_/ / | | |
+"	_ _ __ ___  _ __ __ _ _ __      / / | |__ | |_/ / | | |
 "	| | '_ ` _ \| '__/ _` | '_ \   / /  |  __||    /| | | |
 "	| | | | | | | | | (_| | | | |./ /___| |___| |\ \\ \_/ /
 "	|_|_| |_| |_|_|  \__,_|_| |_|\_____/\____/\_| \_|\___/
@@ -37,7 +37,6 @@ colo pablo
 " set guioptions-=r				" Hides the scrollbar in gvim
 set guioptions -=T				" Hides the toolbar in gvim
 
-" Use case insensitive search, except when using capital letters
 set ignorecase
 set smartcase
 
@@ -45,13 +44,9 @@ set backspace=indent,eol,start
 set autoindent
 set smartindent
 
-" Stop certain movements from always going to the first character of a line.
-" While this behaviour deviates from that of Vi, it does what most users
-" coming from other editors would expect.
 set nostartofline
 
-" Display the cursor position on the last line of the screen or in the status
-" line of a window
+" Display the cursor position in the status line
 set ruler
 
 " Always display the status line, even if only one window is displayed
@@ -64,15 +59,8 @@ set confirm
 " Use visual bell instead of beeping when doing something wrong
 set visualbell
 
-" And reset the terminal code for the visual bell. If visualbell is set, and
-" this line is also included, vim will neither flash nor beep. If visualbell
-" is unset, this does nothing.
-set t_vb=
-
 " Enable use of the mouse for all modes
 set mouse=a
-
-set cmdheight=1
 
 set number
 set nu rnu
@@ -97,13 +85,13 @@ set expandtab
 "set shiftwidth=4
 "set tabstop=4
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Mappings
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
 " which is the default
 map Y y$
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Split options
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Split navigations
 nnoremap <C-J> <C-W><C-J>
