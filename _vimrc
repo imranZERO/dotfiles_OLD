@@ -1,38 +1,41 @@
+ _                            ______ ___________ _____
+(_)                          |___  /|  ___| ___ \  _  |
+ _ _ __ ___  _ __ __ _ _ __     / / | |__ | |_/ / | | |
+| | '_ ` _ \| '__/ _` | '_ \   / /  |  __||    /| | | |
+| | | | | | | | | (_| | | | |./ /___| |___| |\ \\ \_/ /
+|_|_| |_| |_|_|  \__,_|_| |_|\_____/\____/\_| \_|\___/
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Essential Options
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+set hidden
+" Alternative
+"set confirm
+"set autowriteall
+
+set wildmenu
+set showcmd
+set hlsearch
+set incsearch
+
+"set nomodeline
 set nocompatible
 filetype indent plugin on
 syntax on
 
-" set guioptions -=m			" Hides the menubar in gvim
-" set guioptions-=r				" Hides the scrollbar in gvim
-set guioptions -=T				" Hides the toolbar in gvim
-
 set encoding=utf-8
 set noswapfile
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Miscellaneous
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 colo pablo
 
-"------------------------------------------------------------
-" Essential Options
-
-set hidden
-
-" Note that not everyone likes working this way (with the hidden option).
-" Alternatives include using tabs or split windows instead of re-using the same
-" window as mentioned above, and/or either of the following options:
-" set confirm
-" set autowriteall
-
-set wildmenu
-set showcmd
-
-" Highlight searches (use <C-L> to temporarily turn off highlighting; see the
-" mapping of <C-L> below)
-set hlsearch
-set incsearch
-
-" set nomodeline
-
-"------------------------------------------------------------
+" set guioptions -=m			" Hides the menubar in gvim
+" set guioptions-=r				" Hides the scrollbar in gvim
+set guioptions -=T				" Hides the toolbar in gvim
 
 " Use case insensitive search, except when using capital letters
 set ignorecase
@@ -94,35 +97,39 @@ set expandtab
 "set shiftwidth=4
 "set tabstop=4
 
-
-"------------------------------------------------------------
-" Mappings {{{1
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Mappings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
 " which is the default
 map Y y$
 
-" Map <C-L> (redraw screen) to also turn off search highlighting until the
-" next search
-nnoremap <C-L> :nohl<CR><C-L>
-
-"split navigations
+" Split navigations
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
+" Split Resizing
+noremap <silent> <C-Left> :vertical resize +3<CR>
+noremap <silent> <C-Right> :vertical resize -3<CR>
+noremap <silent> <C-Up> :resize +3<CR>
+noremap <silent> <C-Down> :resize -3<CR>
+
 set splitbelow
 set splitright
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Status line stuff
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" default: set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %=\ %P%)
 
 " status bar colors -------------------------------------------
 au InsertEnter * hi statusline guifg=black guibg=#d7afff ctermfg=black ctermbg=magenta
 au InsertLeave * hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
 hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
-
-"Status line stuff -------------------------------------------
-
-" default: set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %=\ %P%)
 
 set statusline=
 set statusline+=%#DiffAdd#%{(mode()=='n')?'\ \ NORMAL\ ':''}
