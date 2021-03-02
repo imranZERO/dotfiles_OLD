@@ -1,5 +1,5 @@
 "	_                            ______ ___________ _____
-"	(_)                          |___  /|  ___| ___ \  _  |
+"	(_)       vimrc              |___  /|  ___| ___ \  _  |
 "	_ _ __ ___  _ __ __ _ _ __      / / | |__ | |_/ / | | |
 "	| | '_ ` _ \| '__/ _` | '_ \   / /  |  __||    /| | | |
 "	| | | | | | | | | (_| | | | |./ /___| |___| |\ \\ \_/ /
@@ -71,6 +71,10 @@ set notimeout ttimeout ttimeoutlen=200
 " Use <F11> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F11>
 
+" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
+" which is the default
+map Y y$
+
 "------------------------------------------------------------
 " Indentation options {{{1
 
@@ -84,10 +88,6 @@ set expandtab
 " four characters wide.
 "set shiftwidth=4
 "set tabstop=4
-
-" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
-" which is the default
-map Y y$
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Split options
