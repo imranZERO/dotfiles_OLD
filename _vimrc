@@ -45,19 +45,14 @@ set autoindent
 set smartindent
 
 set nostartofline
+set visualbell
 
 " Display the cursor position in the status line
 set ruler
 
-" Always display the status line, even if only one window is displayed
-set laststatus=2
-
 " Instead of failing a command because of unsaved changes, instead raise a
 " dialogue asking if you wish to save changed files.
 set confirm
-
-" Use visual bell instead of beeping when doing something wrong
-set visualbell
 
 " Enable use of the mouse for all modes
 set mouse=a
@@ -75,9 +70,7 @@ set pastetoggle=<F11>
 " which is the default
 map Y y$
 
-"------------------------------------------------------------
-" Indentation options {{{1
-
+" Indentation options -----------------------------------------
 " Indentation settings for using 4 spaces instead of tabs.
 " Do not change 'tabstop' from its default value of 8 with this setup.
 set shiftwidth=4
@@ -112,26 +105,27 @@ set splitright
 "  Status line stuff
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" default: set statusline=%f\ %h%w%m%r\ %=%(%l,%c%V\ %=\ %P%)
+" Always display the status line, even if only one window is displayed
+set laststatus=2
 
 " status bar colors -------------------------------------------
-au InsertEnter * hi statusline guifg=black guibg=#d7afff ctermfg=black ctermbg=magenta
-au InsertLeave * hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
-hi statusline guifg=black guibg=#8fbfdc ctermfg=black ctermbg=cyan
+au InsertEnter * hi statusline ctermfg=black ctermbg=magenta
+au InsertLeave * hi statusline ctermfg=black ctermbg=cyan
+hi statusline ctermfg=black ctermbg=cyan
 
 set statusline=
 set statusline+=%#DiffAdd#%{(mode()=='n')?'\ \ NORMAL\ ':''}
 set statusline+=%#DiffChange#%{(mode()=='i')?'\ \ INSERT\ ':''}
 set statusline+=%#DiffDelete#%{(mode()=='r')?'\ \ RPLACE\ ':''}
 set statusline+=%#Cursor#%{(mode()=='v')?'\ \ VISUAL\ ':''}
-set statusline+=\ %n\           " buffer number
 set statusline+=%{&paste?'\ PASTE\ ':''}
 set statusline+=%{&spell?'\ SPELL\ ':''}
-set statusline+=%R                        " readonly flag
-set statusline+=%M                        " modified [+] flag
-set statusline+=\ %t\                   " short file name
-set statusline+=%=                          " right align
-set statusline+=\ %Y\                   " file type
-set statusline+=\ %3l:%-2c\         " line + column
-set statusline+=%#Cursor#       " colour
-set statusline+=\ %3p%%\                " percentage
+set statusline+=\ %n\           		" buffer number
+set statusline+=%R                  	" readonly flag
+set statusline+=%M                  	" modified [+] flag
+set statusline+=\ %t\               	" short file name
+set statusline+=%=                  	" right align
+set statusline+=\ %Y\               	" file type
+set statusline+=\ %3l:%-2c\         	" line + column
+set statusline+=%#Cursor#       		" colour
+set statusline+=\ %3p%%\            	" percentage
