@@ -2,6 +2,7 @@
 source ~/.config/.bash-powerline.sh
 
 alias cls='clear'
+shopt -s autocd
 
 # Check that we haven't already been sourced.
 ([[ -z ${CYG_SYS_BASHRC} ]] && CYG_SYS_BASHRC="1") || return
