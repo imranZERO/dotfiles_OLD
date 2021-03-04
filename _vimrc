@@ -10,7 +10,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 set hidden
-" Alternative
+" Alternative =>
 "set confirm
 "set autowriteall
 
@@ -31,7 +31,7 @@ set noswapfile
 "  Miscellaneous
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-colo pablo
+colorscheme pablo
 
 " set guioptions -=m			" Hides the menubar in gvim
 " set guioptions-=r				" Hides the scrollbar in gvim
@@ -47,9 +47,6 @@ set smartindent
 set nostartofline
 set visualbell
 
-" Display the cursor position in the status line
-set ruler
-
 " Instead of failing a command because of unsaved changes, instead raise a
 " dialogue asking if you wish to save changed files.
 set confirm
@@ -58,17 +55,13 @@ set confirm
 set mouse=a
 
 set number
-set nu rnu
+set number relativenumber
 
 " Quickly time out on keycodes, but never time out on mappings
 set notimeout ttimeout ttimeoutlen=200
 
 " Use <F11> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F11>
-
-" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
-" which is the default
-map Y y$
 
 " Indentation options -----------------------------------------
 " Indentation settings for using 4 spaces instead of tabs.
@@ -81,6 +74,17 @@ set expandtab
 " four characters wide.
 "set shiftwidth=4
 "set tabstop=4
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Mappings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
+" which is the default
+map Y y$
+
+" Shortened command for opening tabs
+nnoremap tt  :tabedit<Space>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Split options
@@ -108,7 +112,10 @@ set splitright
 " Always display the status line, even if only one window is displayed
 set laststatus=2
 
-" status bar colors -------------------------------------------
+" Display the cursor position in the status line
+set ruler
+
+" colors ------------------------------------------------------
 au InsertEnter * hi statusline ctermfg=black ctermbg=magenta
 au InsertLeave * hi statusline ctermfg=black ctermbg=cyan
 hi statusline ctermfg=black ctermbg=cyan
