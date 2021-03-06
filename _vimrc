@@ -63,7 +63,6 @@ set notimeout ttimeout ttimeoutlen=200
 " Use <F11> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F11>
 
-" Indentation options -----------------------------------------
 " Indentation settings for using 4 spaces instead of tabs.
 " Do not change 'tabstop' from its default value of 8 with this setup.
 set shiftwidth=4
@@ -97,10 +96,10 @@ nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
 " Split Resizing
-noremap <silent> <C-Left> :vertical resize +3<CR>
-noremap <silent> <C-Right> :vertical resize -3<CR>
 noremap <silent> <C-Up> :resize +3<CR>
 noremap <silent> <C-Down> :resize -3<CR>
+noremap <silent> <C-Left> :vertical resize +3<CR>
+noremap <silent> <C-Right> :vertical resize -3<CR>
 
 set splitbelow
 set splitright
@@ -115,7 +114,7 @@ set laststatus=2
 " Display the cursor position in the status line
 set ruler
 
-" colors ------------------------------------------------------
+" colors
 au InsertEnter * hi statusline ctermfg=black ctermbg=magenta
 au InsertLeave * hi statusline ctermfg=black ctermbg=cyan
 hi statusline ctermfg=black ctermbg=cyan
