@@ -1,0 +1,1 @@
+ffmpeg -video_size 1366x768 -framerate 60 -f gdigrab -i desktop -c:v libx264rgb -crf 0 -preset ultrafast output.mkv
