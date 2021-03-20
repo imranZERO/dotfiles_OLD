@@ -3,5 +3,5 @@ all:
 	g++ *.cpp -o open -lglew32 -lglfw3 -lopengl32 -lgdi32 -luser32 -lkernel32 -mwindows
 
 #GLUT window creation
-# all:
-# 	g++ main.c -o main -Wall -lglut32 -lopengl32 -lglu32 -mwindows
+glut:
+	g++ *.c -o main -Wall -lglut32 -lopengl32 -lglu32 -mwindows
