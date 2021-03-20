@@ -1,4 +1,4 @@
-"	_                            ______ ___________ _____
+"	 _                            ______ ___________ _____
 "	(_)       vimrc              |___  /|  ___| ___ \  _  |
 "	_ _ __ ___  _ __ __ _ _ __      / / | |__ | |_/ / | | |
 "	| | '_ ` _ \| '__/ _` | '_ \   / /  |  __||    /| | | |
@@ -33,8 +33,8 @@ set noswapfile
 
 colorscheme pablo
 
-" set guioptions -=m			" Hides the menubar in gvim
-" set guioptions-=r				" Hides the scrollbar in gvim
+"set guioptions -=m				" Hides the menubar in gvim
+set guioptions-=r				" Hides the scrollbar in gvim
 set guioptions -=T				" Hides the toolbar in gvim
 
 set ignorecase
@@ -84,6 +84,9 @@ map Y y$
 
 " Shortened command for opening tabs
 nnoremap tt  :tabedit<Space>
+
+" gvim colorscheme switch
+noremap cc :colo gruvbox<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Split options
