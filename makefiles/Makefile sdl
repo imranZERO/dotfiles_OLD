@@ -4,7 +4,7 @@ compile:
 	g++ -c *.cpp -std=c++14 -O3 -Wall
 
 link:
-	g++ *.o -o main -s -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -mwindows -luser32
+	g++ *.o -o main -s -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -luser32 -lkernel32 -mwindows
 
 clean:
 	rm *.o
