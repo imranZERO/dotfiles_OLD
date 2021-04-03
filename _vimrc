@@ -8,22 +8,22 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Essential Options 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 set hidden
-" Alternative =>
-"set confirm
-"set autowriteall
-
 set wildmenu
 set showcmd
-set hlsearch
+set nohlsearch
 set incsearch
+set confirm
+set number
+set relativenumber
+set scrolloff=8
 
-"set nomodeline
+syntax on
+set exrc
+set noerrorbells
+set nomodeline
 set nocompatible
 filetype indent plugin on
-syntax on
-
 set encoding=utf-8
 set noswapfile
 
@@ -33,29 +33,13 @@ set noswapfile
 
 colorscheme pablo
 
-"set guioptions -=m				" Hides the menubar in gvim
-set guioptions-=r				" Hides the scrollbar in gvim
-set guioptions -=T				" Hides the toolbar in gvim
-
 set ignorecase
 set smartcase
-
 set backspace=indent,eol,start
 set autoindent
 set smartindent
-
 set nostartofline
-set visualbell
-
-" Instead of failing a command because of unsaved changes, instead raise a
-" dialogue asking if you wish to save changed files.
-set confirm
-
-" Enable use of the mouse for all modes
 set mouse=a
-
-set number
-set number relativenumber
 
 " Quickly time out on keycodes, but never time out on mappings
 set notimeout ttimeout ttimeoutlen=200
@@ -66,16 +50,14 @@ let g:netrw_banner=0
 " Use <F11> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F11>
 
-" Indentation settings for using 4 spaces instead of tabs.
-" Do not change 'tabstop' from its default value of 8 with this setup.
+set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
 
-" Indentation settings for using hard tabs for indent. Display tabs as
-" four characters wide.
-"set shiftwidth=4
-"set tabstop=4
+"set guioptions -=m				" Hides the menubar in gvim
+set guioptions-=r				" Hides the scrollbar in gvim
+set guioptions -=T				" Hides the toolbar in gvim
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Mappings
@@ -83,15 +65,25 @@ set expandtab
 " Map ESC to something sane
 inoremap ii <Esc>
 
-" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
-" which is the default
+" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy
 map Y y$
 
 " command for opening tabs
 nnoremap tt  :tabedit<Space>
 
+" launch integrated terminal
+nnoremap te  :term<CR>
+
 " colorscheme switch
 noremap cc :colo gotham<CR>
+
+" insert matching brackets & quotes
+inoremap {<CR> {<CR>}<C-o>O
+inoremap ( )<C-Left>(
+inoremap [ ]<C-Left>[
+inoremap " "<C-Left>"
+inoremap ' '<C-Left>'
+inoremap < ><C-Left><
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Split options
@@ -114,11 +106,7 @@ noremap <silent> <C-Right> :vertical resize -3<CR>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Status line stuff
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" Always display the status line, even if only one window is displayed
 set laststatus=2
-
-" Display the cursor position in the status line
 set ruler
 
 " colors
@@ -140,5 +128,5 @@ set statusline+=\ %t\               	" short file name
 set statusline+=%=                  	" right align
 set statusline+=\ %Y\               	" file type
 set statusline+=\ %3l:%-2c\         	" line + column
-set statusline+=%#Cursor#       		" colour
+"set statusline+=%#Cursor#       		" colour
 set statusline+=\ %3p%%\            	" percentage
