@@ -1,12 +1,12 @@
 "	 _                            ______ ___________ _____
-"	(_)       vimrc              |___  /|  ___| ___ \  _  |
+"	(_) vimrc     ₀ ₚₗᵤ𝓰ᵢₙₛ ₘₐ𝒹ₐ𝒻ₐₖₐ  |___  /|  ___| ___ \  _  |
 "	_ _ __ ___  _ __ __ _ _ __      / / | |__ | |_/ / | | |
 "	| | '_ ` _ \| '__/ _` | '_ \   / /  |  __||    /| | | |
 "	| | | | | | | | | (_| | | | |./ /___| |___| |\ \\ \_/ /
 "	|_|_| |_| |_|_|  \__,_|_| |_|\_____/\____/\_| \_|\___/
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Essential Options
+"  Essential Options 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 set hidden
@@ -87,15 +87,17 @@ inoremap ii <Esc>
 " which is the default
 map Y y$
 
-" Shortened command for opening tabs
+" command for opening tabs
 nnoremap tt  :tabedit<Space>
 
-" gvim colorscheme switch
-noremap cc :colo gruvbox<CR>
+" colorscheme switch
+noremap cc :colo gotham<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Split options
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set splitbelow
+set splitright
 
 " Split navigations
 nnoremap <C-J> <C-W><C-J>
@@ -108,9 +110,6 @@ noremap <silent> <C-Up> :resize +3<CR>
 noremap <silent> <C-Down> :resize -3<CR>
 noremap <silent> <C-Left> :vertical resize +3<CR>
 noremap <silent> <C-Right> :vertical resize -3<CR>
-
-set splitbelow
-set splitright
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Status line stuff
@@ -134,12 +133,12 @@ set statusline+=%#DiffDelete#%{(mode()=='r')?'\ \ RPLACE\ ':''}
 set statusline+=%#Cursor#%{(mode()=='v')?'\ \ VISUAL\ ':''}
 set statusline+=%{&paste?'\ PASTE\ ':''}
 set statusline+=%{&spell?'\ SPELL\ ':''}
-set statusline+=\ %n\           		" buffer number
-set statusline+=%R                  	" readonly flag
-set statusline+=%M                  	" modified [+] flag
-set statusline+=\ %t\               	" short file name
-set statusline+=%=                  	" right align
-set statusline+=\ %Y\               	" file type
-set statusline+=\ %3l:%-2c\         	" line + column
-set statusline+=%#Cursor#       		" colour
-set statusline+=\ %3p%%\            	" percentage
+set statusline+=\ %n\					" buffer number
+set statusline+=%R						" readonly flag
+set statusline+=%M						" modified [+] flag
+set statusline+=\ %t\					" short file name
+set statusline+=%=						" right align
+set statusline+=\ %Y\					" file type
+set statusline+=\ %3l:%-2c\				" line + column
+set statusline+=%#Cursor#				" colour
+set statusline+=\ %3p%%\				" percentage
