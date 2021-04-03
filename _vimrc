@@ -1,5 +1,5 @@
 "	 _                            ______ ___________ _____
-"	(_) vimrc     ₀ ₚₗᵤ𝓰ᵢₙₛ ₘₐ𝒹ₐ𝒻ₐₖₐ  |___  /|  ___| ___ \  _  |
+"	(_)      0 plugins madafaka  |___  /|  ___| ___ \  _  |
 "	_ _ __ ___  _ __ __ _ _ __      / / | |__ | |_/ / | | |
 "	| | '_ ` _ \| '__/ _` | '_ \   / /  |  __||    /| | | |
 "	| | | | | | | | | (_| | | | |./ /___| |___| |\ \\ \_/ /
@@ -133,12 +133,12 @@ set statusline+=%#DiffDelete#%{(mode()=='r')?'\ \ RPLACE\ ':''}
 set statusline+=%#Cursor#%{(mode()=='v')?'\ \ VISUAL\ ':''}
 set statusline+=%{&paste?'\ PASTE\ ':''}
 set statusline+=%{&spell?'\ SPELL\ ':''}
-set statusline+=\ %n\					" buffer number
-set statusline+=%R						" readonly flag
-set statusline+=%M						" modified [+] flag
-set statusline+=\ %t\					" short file name
-set statusline+=%=						" right align
-set statusline+=\ %Y\					" file type
-set statusline+=\ %3l:%-2c\				" line + column
-set statusline+=%#Cursor#				" colour
-set statusline+=\ %3p%%\				" percentage
+set statusline+=\ %n\           		" buffer number
+set statusline+=%R                  	" readonly flag
+set statusline+=%M                  	" modified [+] flag
+set statusline+=\ %t\               	" short file name
+set statusline+=%=                  	" right align
+set statusline+=\ %Y\               	" file type
+set statusline+=\ %3l:%-2c\         	" line + column
+set statusline+=%#Cursor#       		" colour
+set statusline+=\ %3p%%\            	" percentage
