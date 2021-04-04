@@ -79,11 +79,11 @@ noremap cc :colo gotham<CR>
 
 " insert matching brackets & quotes
 inoremap {<CR> {<CR>}<C-o>O
-inoremap ( )<C-Left>(
-inoremap [ ]<C-Left>[
-inoremap " "<C-Left>"
-inoremap ' '<C-Left>'
-inoremap < ><C-Left><
+inoremap ( ()<Esc>ha
+inoremap [ []<Esc>ha
+inoremap " ""<Esc>ha
+inoremap ' ''<Esc>ha
+inoremap < <><Esc>ha
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Split options
