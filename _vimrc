@@ -20,7 +20,8 @@ set scrolloff=8
 
 syntax on
 set exrc
-set noerrorbells
+"set noerrorbells
+set visualbell
 set nomodeline
 set nocompatible
 filetype indent plugin on
@@ -47,16 +48,14 @@ set notimeout ttimeout ttimeoutlen=200
 " Netrw
 let g:netrw_banner=0
 
-" Use <F11> to toggle between 'paste' and 'nopaste'
-set pastetoggle=<F11>
-
 set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
 
-"set guioptions -=m				" Hides the menubar in gvim
+set guioptions -=m				" Hides the menubar in gvim
 set guioptions-=r				" Hides the scrollbar in gvim
+set guioptions -=L				" Hides the scrollbar in gvim
 set guioptions -=T				" Hides the toolbar in gvim
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -76,6 +75,13 @@ nnoremap te  :term<CR>
 
 " colorscheme switch
 noremap cc :colo gotham<CR>
+
+" Use <F10> to toggle between 'paste' and 'nopaste'
+set pastetoggle=<F10>
+
+" gvim fullscreen toggle
+" github.com/derekmcloughlin/gvimfullscreen_win32
+map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
 
 " insert matching brackets & quotes
 inoremap {<CR> {<CR>}<C-o>O
