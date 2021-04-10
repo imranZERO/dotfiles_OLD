@@ -20,8 +20,7 @@ set scrolloff=8
 
 syntax on
 set exrc
-"set noerrorbells
-set visualbell
+set belloff=all
 set nomodeline
 set nocompatible
 filetype indent plugin on
@@ -53,10 +52,10 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 
-set guioptions -=m				" Hides the menubar in gvim
-set guioptions-=r				" Hides the left &
-set guioptions -=L				" right scrollbar in gvim
-set guioptions -=T				" Hides the toolbar in gvim
+set guioptions -=m				" remove menubar
+set guioptions-=r				" remove the left &
+set guioptions -=L				" right scrollbar
+set guioptions -=T				" remove the toolbar
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Mappings
