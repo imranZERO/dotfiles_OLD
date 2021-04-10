@@ -54,8 +54,8 @@ set softtabstop=4
 set expandtab
 
 set guioptions -=m				" Hides the menubar in gvim
-set guioptions-=r				" Hides the scrollbar in gvim
-set guioptions -=L				" Hides the scrollbar in gvim
+set guioptions-=r				" Hides the left &
+set guioptions -=L				" right scrollbar in gvim
 set guioptions -=T				" Hides the toolbar in gvim
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -74,7 +74,7 @@ nnoremap tt  :tabedit<Space>
 nnoremap te  :term<CR>
 
 " colorscheme switch
-noremap cc :colo gotham<CR>
+nnoremap cc :colo gotham<CR>
 
 " Use <F10> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F10>
@@ -82,6 +82,17 @@ set pastetoggle=<F10>
 " gvim fullscreen toggle
 " github.com/derekmcloughlin/gvimfullscreen_win32
 map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
+
+" buffer navigation
+nnoremap <TAB> :bnext<CR>
+nnoremap <S-TAB> :bprevious<CR>
+
+" better tabbing
+vnoremap < <gv
+vnoremap > >gv
+
+" opening Netrw
+cmap fm :Vexplore<CR><C-W><C-R>:vertical res 30<CR>
 
 " insert matching brackets & quotes
 inoremap {<CR> {<CR>}<C-o>O
