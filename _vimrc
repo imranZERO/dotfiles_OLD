@@ -28,10 +28,21 @@ set encoding=utf-8
 set noswapfile
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Gui
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set guifont=fira_code:h9:b		" font:size:weight
+set guicursor+=i:ver100-iCursor	" block cursor
+nnoremap cc :colo gotham<CR>	" colorscheme switch
+
+set guioptions -=m				" remove menubar
+set guioptions-=r				" remove the left &
+set guioptions -=L				" right scrollbar
+set guioptions -=T				" remove the toolbar
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Miscellaneous
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-colorscheme pablo
+colorscheme gruvbox
 
 set ignorecase
 set smartcase
@@ -52,11 +63,6 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab
 
-set guioptions -=m				" remove menubar
-set guioptions-=r				" remove the left &
-set guioptions -=L				" right scrollbar
-set guioptions -=T				" remove the toolbar
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Mappings
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -66,14 +72,11 @@ inoremap ii <Esc>
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy
 map Y y$
 
-" command for opening tabs
+" opening tabs
 nnoremap tt  :tabedit<Space>
 
 " launch integrated terminal
 nnoremap te  :term<CR>
-
-" colorscheme switch
-nnoremap cc :colo gotham<CR>
 
 " Use <F10> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F10>
