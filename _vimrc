@@ -1,5 +1,5 @@
 "	 _                            ______ ___________ _____
-"	(_)      0 plugins madafaka  |___  /|  ___| ___ \  _  |
+"	(_)   ZERO plugins madafaka  |___  /|  ___| ___ \  _  |
 "	_ _ __ ___  _ __ __ _ _ __      / / | |__ | |_/ / | | |
 "	| | '_ ` _ \| '__/ _` | '_ \   / /  |  __||    /| | | |
 "	| | | | | | | | | (_| | | | |./ /___| |___| |\ \\ \_/ /
@@ -14,18 +14,24 @@ set showcmd
 set nohlsearch
 set incsearch
 set confirm
-set number
-set relativenumber
-set scrolloff=8
 
 syntax on
 set exrc
 set belloff=all
 set nomodeline
 set nocompatible
-filetype indent plugin on
 set encoding=utf-8
 set noswapfile
+
+set ignorecase
+set smartcase
+set autoindent
+set smartindent
+set nostartofline
+set mouse=a
+let g:netrw_banner=0
+filetype indent plugin on
+set backspace=indent,eol,start
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Gui
@@ -33,6 +39,9 @@ set noswapfile
 set guifont=fira_code:h9:b		" font:size:weight
 set guicursor+=i:ver100-iCursor	" block cursor
 nnoremap cc :colo gotham<CR>	" colorscheme switch
+
+" gvim fullscreen toggle => github.com/derekmcloughlin/gvimfullscreen_win32
+map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
 
 set guioptions -=m				" remove menubar
 set guioptions-=r				" remove the left &
@@ -44,24 +53,17 @@ set guioptions -=T				" remove the toolbar
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 colorscheme gruvbox
 
-set ignorecase
-set smartcase
-set backspace=indent,eol,start
-set autoindent
-set smartindent
-set nostartofline
-set mouse=a
-
-" Quickly time out on keycodes, but never time out on mappings
-set notimeout ttimeout ttimeoutlen=200
-
-" Netrw
-let g:netrw_banner=0
-
 set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
+
+set number
+"set relativenumber
+set scrolloff=8
+
+" Quickly time out on keycodes, but never time out on mappings
+set notimeout ttimeout ttimeoutlen=200
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Mappings
@@ -69,21 +71,17 @@ set expandtab
 " Map ESC to something sane
 inoremap ii <Esc>
 
+" Ctrl-Backspace
+inoremap <C-BS> <Esc>bdwi 
+
+" fast quit
+noremap <C-Q> :qa!<CR>
+
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy
 map Y y$
 
-" opening tabs
-nnoremap tt  :tabedit<Space>
-
-" launch integrated terminal
-nnoremap te  :term<CR>
-
 " Use <F10> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F10>
-
-" gvim fullscreen toggle
-" github.com/derekmcloughlin/gvimfullscreen_win32
-map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
 
 " buffer navigation
 nnoremap <TAB> :bnext<CR>
@@ -94,9 +92,9 @@ vnoremap < <gv
 vnoremap > >gv
 
 " opening Netrw
-cmap fm :Vexplore<CR><C-W><C-R>:vertical res 30<CR>
+cmap fm<CR> :Vexplore<CR><C-W><C-R>:vertical res 30<CR>
 
-" insert matching brackets & quotes
+" matching brackets & quotes
 inoremap {<CR> {<CR>}<C-o>O
 inoremap ( ()<Esc>ha
 inoremap [ []<Esc>ha
@@ -119,8 +117,8 @@ nnoremap <C-H> <C-W><C-H>
 " Split Resizing
 noremap <silent> <C-Up> :resize +3<CR>
 noremap <silent> <C-Down> :resize -3<CR>
-noremap <silent> <C-Left> :vertical resize +3<CR>
-noremap <silent> <C-Right> :vertical resize -3<CR>
+noremap <silent> <C-Left> :vertical res +3<CR>
+noremap <silent> <C-Right> :vertical res -3<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Status line stuff
@@ -136,7 +134,7 @@ hi statusline ctermfg=black ctermbg=cyan
 set statusline=
 set statusline+=%#DiffAdd#%{(mode()=='n')?'\ \ NORMAL\ ':''}
 set statusline+=%#DiffChange#%{(mode()=='i')?'\ \ INSERT\ ':''}
-set statusline+=%#DiffDelete#%{(mode()=='r')?'\ \ RPLACE\ ':''}
+set statusline+=%#DiffDelete#%{(mode()=='r')?'\ \ REPLACE\ ':''}
 set statusline+=%#Cursor#%{(mode()=='v')?'\ \ VISUAL\ ':''}
 set statusline+=%{&paste?'\ PASTE\ ':''}
 set statusline+=%{&spell?'\ SPELL\ ':''}
