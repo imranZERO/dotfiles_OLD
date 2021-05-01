@@ -1,5 +1,13 @@
-git clone https://github.com/itchyny/lightline.vim.git && \
-git clone https://github.com/Yggdroot/indentLine.git && \
-git clone https://github.com/mattn/emmet-vim.git && \
-git clone https://github.com/tpope/vim-surround && \
-git clone https://github.com/jiangmiao/auto-pairs.git
+git clone --depth=1 https://github.com/itchyny/lightline.vim.git && \
+git clone --depth=1 https://github.com/Yggdroot/indentLine.git && \
+git clone --depth=1 https://github.com/mattn/emmet-vim.git && \
+git clone --depth=1 https://github.com/tpope/vim-surround && \
+git clone --depth=1 https://github.com/junegunn/goyo.vim.git && \
+git clone --depth=1 https://github.com/preservim/nerdcommenter.git && \
+git clone --depth=1 https://github.com/ackyshake/VimCompletesMe.git && \
+git clone --depth=1 https://github.com/bagrat/vim-buffet.git && \
+git clone --depth=1 https://github.com/shinchu/lightline-gruvbox.git && \
+git clone --depth=1 https://github.com/preservim/nerdtree && \
+git clone --depth=1 https://github.com/junegunn/fzf.git && \
+git clone --depth=1 https://github.com/junegunn/fzf.vim.git && \
+git clone --depth=1 https://github.com/jiangmiao/auto-pairs.git
