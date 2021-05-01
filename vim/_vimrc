@@ -1,5 +1,5 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Essential Options 
+"  Essentials
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set hidden
 set wildmenu
@@ -23,26 +23,14 @@ set smartindent
 set nostartofline
 set mouse=a
 set noshowmode
-let g:netrw_banner=0
 filetype indent plugin on
 set backspace=indent,eol,start
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Colors
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:gruvbox_italic = '0'
-let g:gruvbox_contrast_light = 'hard'
-let g:gruvbox_contrast_dark = 'hard'
-let g:gruvbox_invert_selection = '0'
-
-colorscheme gruvbox
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Gui
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set guifont=fira_code:h9:b		" font:size:weight
 set guicursor+=i:ver100-iCursor	" block cursor
-nnoremap cc :colo gotham<CR>	" colorscheme switch
 
 " gvim fullscreen toggle => github.com/derekmcloughlin/gvimfullscreen_win32
 map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
@@ -73,6 +61,8 @@ set notimeout ttimeout ttimeoutlen=200
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Mappings
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let mapleader = ","
+
 " Map ESC to something sane
 inoremap ii <Esc>
 
@@ -82,8 +72,11 @@ inoremap <C-BS> <Esc>bdwi
 " fast quit
 noremap <C-Q> :qa!<CR>
 
-" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy
-map Y y$
+" Cycle tabs
+nnoremap <C-TAB> gt
+
+" Yank to clipboard
+noremap Y "+y
 
 " Use <F10> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F10>
@@ -97,7 +90,7 @@ vnoremap < <gv
 vnoremap > >gv
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Split options
+"  Splits
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set splitbelow
 set splitright
@@ -108,8 +101,41 @@ nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
+tnoremap <C-h> <C-\><C-n><C-w>h
+tnoremap <C-j> <C-\><C-n><C-w>j
+tnoremap <C-k> <C-\><C-n><C-w>k
+tnoremap <C-l> <C-\><C-n><C-w>l
+
 " Split Resizing
 noremap <silent> <C-Up> :resize +3<CR>
 noremap <silent> <C-Down> :resize -3<CR>
 noremap <silent> <C-Left> :vertical res +3<CR>
 noremap <silent> <C-Right> :vertical res -3<CR>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Colors
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:gruvbox_italic = '0'
+let g:gruvbox_contrast_light = 'hard'
+let g:gruvbox_contrast_dark = 'medium'
+let g:gruvbox_invert_selection = '0'
+let g:gruvbox_vert_split = 'bg1'
+
+let g:lightline = {
+    \ 'colorscheme': 'gruvbox',}
+
+colorscheme gruvbox
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Plugs
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:netrw_banner=0
+
+let g:NERDTreeShowHidden = 1
+let g:NERDTreeMinimalUI = 1
+let g:NERDTreeIgnore = []
+let g:NERDTreeStatusline = ''
+
+nnoremap <silent> <C-b> :NERDTreeToggle<CR>
+nnoremap <silent> <A-b> :NERDTreeFind<CR>
+autocmd BufWinEnter * silent NERDTreeMirror
