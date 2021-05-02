@@ -2,6 +2,7 @@ git clone --depth=1 https://github.com/mhinz/vim-startify && \
 git clone --depth=1 https://github.com/preservim/nerdtree && \
 git clone --depth=1 https://github.com/justinmk/vim-sneak.git && \
 git clone --depth=1 https://github.com/jiangmiao/auto-pairs.git && \
+git clone --depth=1 https://github.com/jpalardy/vim-slime.git && \
 git clone --depth=1 https://github.com/junegunn/rainbow_parentheses.vim.git && \
 git clone --depth=1 https://github.com/preservim/nerdcommenter.git && \
 git clone --depth=1 https://github.com/ackyshake/VimCompletesMe.git && \
