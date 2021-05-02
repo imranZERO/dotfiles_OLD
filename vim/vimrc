@@ -1,4 +1,10 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"  Imports
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+runtime plugs.vim
+runtime python.vim
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Essentials
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set hidden
@@ -50,10 +56,12 @@ set expandtab
 
 set laststatus=2
 set ruler
+set fillchars=vert:│
 
 set number
 "set relativenumber
 set scrolloff=8
+set cursorline
 
 " Quickly time out on keycodes, but never time out on mappings
 set notimeout ttimeout ttimeoutlen=200
@@ -61,7 +69,8 @@ set notimeout ttimeout ttimeoutlen=200
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Mappings
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let mapleader = ","
+nnoremap <SPACE> <Nop>
+let mapleader=" "
 
 " Map ESC to something sane
 inoremap ii <Esc>
@@ -69,8 +78,15 @@ inoremap ii <Esc>
 " Ctrl-Backspace
 inoremap <C-BS> <Esc>bdwi 
 
+" Moving lines
+nnoremap <silent> <C-k> :move-2<cr>
+nnoremap <silent> <C-j> :move+<cr>
+xnoremap <silent> <C-k> :move-2<cr>gv
+xnoremap <silent> <C-j> :move'>+<cr>gv
+
 " fast quit
 noremap <C-Q> :qa!<CR>
+noremap <leader>q :q<CR>
 
 " Cycle tabs
 nnoremap <C-TAB> gt
@@ -96,15 +112,15 @@ set splitbelow
 set splitright
 
 " Split navigations
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
+noremap <leader>j <C-W><C-J>
+noremap <leader>k <C-W><C-K>
+noremap <leader>l <C-W><C-L>
+noremap <leader>h <C-W><C-H>
 
-tnoremap <C-h> <C-\><C-n><C-w>h
-tnoremap <C-j> <C-\><C-n><C-w>j
-tnoremap <C-k> <C-\><C-n><C-w>k
-tnoremap <C-l> <C-\><C-n><C-w>l
+tnoremap <leader>j <C-\><C-n><C-w>h
+tnoremap <leader>k <C-\><C-n><C-w>j
+tnoremap <leader>l <C-\><C-n><C-w>k
+tnoremap <leader>h <C-\><C-n><C-w>l
 
 " Split Resizing
 noremap <silent> <C-Up> :resize +3<CR>
@@ -120,22 +136,9 @@ let g:gruvbox_contrast_light = 'hard'
 let g:gruvbox_contrast_dark = 'medium'
 let g:gruvbox_invert_selection = '0'
 let g:gruvbox_vert_split = 'bg1'
+let g:nord_bold_vertical_split_line = 1
+let g:seoul256_background = 233
 
-let g:lightline = {
-    \ 'colorscheme': 'gruvbox',}
+let g:lightline = {'colorscheme': 'nord',}
 
-colorscheme gruvbox
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Plugs
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:netrw_banner=0
-
-let g:NERDTreeShowHidden = 1
-let g:NERDTreeMinimalUI = 1
-let g:NERDTreeIgnore = []
-let g:NERDTreeStatusline = ''
-
-nnoremap <silent> <C-b> :NERDTreeToggle<CR>
-nnoremap <silent> <A-b> :NERDTreeFind<CR>
-autocmd BufWinEnter * silent NERDTreeMirror
+colorscheme nord
