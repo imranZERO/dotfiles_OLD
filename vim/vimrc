@@ -7,64 +7,105 @@ runtime python.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Essentials
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set exrc
+syntax on
 set hidden
 set wildmenu
 set showcmd
 set nohlsearch
 set incsearch
 set confirm
-
-syntax on
-set exrc
-set belloff=all
-set nomodeline
-set nocompatible
-set encoding=utf-8
 set noswapfile
+set nocompatible
+set belloff=all
+set encoding=utf-8
 
+set mouse=a
 set ignorecase
 set smartcase
 set autoindent
 set smartindent
-set nostartofline
-set mouse=a
+set laststatus=2
+set nomodeline
 set noshowmode
+set nostartofline
+set termguicolors
 filetype indent plugin on
 set backspace=indent,eol,start
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Gui
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set guifont=fira_code:h9:b		" font:size:weight
-set guicursor+=i:ver100-iCursor	" block cursor
+" Font resizing
+if has("unix")
+    function! FontSizePlus ()
+      let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole + 1
+      let l:new_font_size = ' '.l:gf_size_whole
+      let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
+    endfunction
+    function! FontSizeMinus ()
+      let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole - 1
+      let l:new_font_size = ' '.l:gf_size_whole
+      let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
+    endfunction
+else
+    function! FontSizePlus ()
+      let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole + 1
+      let l:new_font_size = ':h'.l:gf_size_whole
+      let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
+    endfunction
+    function! FontSizeMinus ()
+      let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
+      let l:gf_size_whole = l:gf_size_whole - 1
+      let l:new_font_size = ':h'.l:gf_size_whole
+      let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
+    endfunction
+endif
 
-" gvim fullscreen toggle => github.com/derekmcloughlin/gvimfullscreen_win32
-map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
+if has("gui_running")
+    nmap <S-F12> :call FontSizeMinus()<CR>
+    nmap <F12> :call FontSizePlus()<CR>
 
-set guioptions -=m				" remove menubar
-set guioptions-=r				" remove the left &
-set guioptions -=L				" right scrollbar
-set guioptions -=T				" remove the toolbar
+    set guifont=fira_code\ SemiBold:h9
+    "set guifont=ubuntu_mono:h10:b		" font:size:weight
+    "set guicursor+=i:ver100-iCursor	" block cursor
+
+    " Gvim fullscreen toggle => github.com/derekmcloughlin/gvimfullscreen_win32
+    map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
+
+    set guioptions -=m				" remove menubar
+    set guioptions -=r				" remove the left &
+    set guioptions -=L				" right scrollbar
+    set guioptions -=T				" remove toolbar
+    set guioptions -=e				" terminal style tabs
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Miscellaneous
+"  Misc
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 set expandtab
 
-set laststatus=2
 set ruler
 set fillchars=vert:│
-
-set number
-"set relativenumber
+set number "relativenumber
 set scrolloff=8
 set cursorline
+set cursorlineopt=number
+
+" Automatically resize panes
+autocmd VimResized * wincmd =
 
 " Quickly time out on keycodes, but never time out on mappings
 set notimeout ttimeout ttimeoutlen=200
+
+" Disables automatic commenting on newline
+autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Mappings
@@ -79,17 +120,12 @@ inoremap ii <Esc>
 inoremap <C-BS> <Esc>bdwi 
 
 " Moving lines
-nnoremap <silent> <C-k> :move-2<cr>
-nnoremap <silent> <C-j> :move+<cr>
 xnoremap <silent> <C-k> :move-2<cr>gv
 xnoremap <silent> <C-j> :move'>+<cr>gv
 
-" fast quit
+" Fast quit
 noremap <C-Q> :qa!<CR>
 noremap <leader>q :q<CR>
-
-" Cycle tabs
-nnoremap <C-TAB> gt
 
 " Yank to clipboard
 noremap Y "+y
@@ -97,19 +133,24 @@ noremap Y "+y
 " Use <F10> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F10>
 
-" buffer navigation
+" Buffer navigation
 nnoremap <TAB> :bnext<CR>
 nnoremap <S-TAB> :bprevious<CR>
 
-" better tabbing
+" Better indenting
 vnoremap < <gv
 vnoremap > >gv
+
+" Perform dot commands over visual blocks
+vnoremap . :normal .<CR>
+
+" Change directory to current file
+nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Splits
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set splitbelow
-set splitright
+set splitbelow splitright
 
 " Split navigations
 noremap <leader>j <C-W><C-J>
@@ -117,28 +158,22 @@ noremap <leader>k <C-W><C-K>
 noremap <leader>l <C-W><C-L>
 noremap <leader>h <C-W><C-H>
 
-tnoremap <leader>j <C-\><C-n><C-w>h
-tnoremap <leader>k <C-\><C-n><C-w>j
-tnoremap <leader>l <C-\><C-n><C-w>k
-tnoremap <leader>h <C-\><C-n><C-w>l
-
 " Split Resizing
-noremap <silent> <C-Up> :resize +3<CR>
-noremap <silent> <C-Down> :resize -3<CR>
-noremap <silent> <C-Left> :vertical res +3<CR>
-noremap <silent> <C-Right> :vertical res -3<CR>
+noremap <silent> <C-Up> :res +3<CR>
+noremap <silent> <C-Down> :res -3<CR>
+noremap <silent> <C-Left> :vert res +3<CR>
+noremap <silent> <C-Right> :vert res -3<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Colors
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:gruvbox_italic = '0'
-let g:gruvbox_contrast_light = 'hard'
+let g:gruvbox_contrast_light = 'medium'
 let g:gruvbox_contrast_dark = 'medium'
 let g:gruvbox_invert_selection = '0'
 let g:gruvbox_vert_split = 'bg1'
 let g:nord_bold_vertical_split_line = 1
-let g:seoul256_background = 233
 
-let g:lightline = {'colorscheme': 'nord',}
-
-colorscheme nord
+let g:lightline = {'colorscheme': 'gruvbox',}
+set bg=dark
+colorscheme gruvbox
