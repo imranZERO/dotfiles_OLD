@@ -1,24 +1,21 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Plugs
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-noremap <S-F11> :Goyo<CR>
-
-
 let g:startify_custom_header =
     \ 'startify#pad(g:ascii + startify#fortune#boxed())'
 let g:ascii = [
-    \ 'vi improved',
-    "\ '        __',
-    "\ '.--.--.|__|.--------.',
-    "\ '|  |  ||  ||        |',
-    "\ ' \___/ |__||__|__|__|',
-    "\ ''
+    \ 'Vi IMproved',
     \]
 let g:startify_padding_left = 10
 let g:startify_lists = [
     \ { 'header': ['          Recent Files'],            'type': 'files' },
-    \ { 'header': ['          Current Directory    '. getcwd()], 'type': 'dir' },
+    \ { 'header': ['          '. getcwd()], 'type': 'dir' },
     \ ]
+
+
+noremap <S-F11> :Goyo<CR>
+autocmd! User GoyoEnter Limelight
+autocmd! User GoyoLeave Limelight!
 
 
 let g:sneak#label = 1
@@ -40,6 +37,3 @@ augroup rainbow_lisp
   autocmd!
   autocmd FileType lisp,clojure,scheme RainbowParentheses
 augroup END
-
-
-let g:vem_tabline_show = '1'
