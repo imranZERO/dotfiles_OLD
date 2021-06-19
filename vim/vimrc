@@ -1,104 +1,146 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Imports
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-runtime plugs.vim
-runtime python.vim
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Essentials
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set exrc
 syntax on
-set noswapfile
 set nocompatible
-set nostartofline
-set laststatus=2
-set belloff=all
+set exrc path+=**
 set encoding=utf-8
-set ruler mouse=a
+set nostartofline
 set hidden confirm
 set wildmenu showcmd
+set autoread ttyfast
+set noswapfile nobackup
 set nohlsearch incsearch
 set nomodeline noshowmode
 set ignorecase smartcase
 set autoindent smartindent
+set splitbelow splitright
 filetype indent plugin on
+set belloff=all mouse=a
 set wildmode=longest,list,full
 set backspace=indent,eol,start
+set laststatus=2 linespace=0 
+set number numberwidth=5 "relativenumber
+set cursorline cursorlineopt=number
+set fillchars=vert:\│,eob:\ ,
+set title titlestring=%f\ \-\ Vi\ IMproved
+set expandtab tabstop=4 shiftwidth=4 softtabstop=4
+set scrolloff=8 sidescrolloff=12 sidescroll=1
+set notimeout ttimeout ttimeoutlen=200
+set termguicolors 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Gui
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if has("gui_running")
+
+set guicursor+=i:ver100                     " Block cursor
+"set guifont=fira_code:h11:b                 " font:size:weight
+set guifont=jetbrains_mono\ SemiBold:h10
+
+" Remove menubar, left, right & bottom scrollbar, toolbar. Terminal style tabs
+set guioptions-=m guioptions-=L guioptions-=r guioptions-=b guioptions-=T guioptions-=e
+
+if has("win32")
+    " Gvim fullscreen toggle => github.com/derekmcloughlin/gvimfullscreen_win32
+    map <silent> <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
+endif
+
 " Font resizing
+nmap <S-F12> :call FontSizeMinus()<CR>
+nmap <F12> :call FontSizePlus()<CR>
+
 if has("unix")
     function! FontSizePlus ()
-      let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
-      let l:gf_size_whole = l:gf_size_whole + 1
-      let l:new_font_size = ' '.l:gf_size_whole
-      let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
+        let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
+        let l:gf_size_whole = l:gf_size_whole + 1
+        let l:new_font_size = ' '.l:gf_size_whole
+        let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
     endfunction
     function! FontSizeMinus ()
-      let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
-      let l:gf_size_whole = l:gf_size_whole - 1
-      let l:new_font_size = ' '.l:gf_size_whole
-      let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
+        let l:gf_size_whole = matchstr(&guifont, '\( \)\@<=\d\+$')
+        let l:gf_size_whole = l:gf_size_whole - 1
+        let l:new_font_size = ' '.l:gf_size_whole
+        let &guifont = substitute(&guifont, ' \d\+$', l:new_font_size, '')
     endfunction
 else
     function! FontSizePlus ()
-      let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
-      let l:gf_size_whole = l:gf_size_whole + 1
-      let l:new_font_size = ':h'.l:gf_size_whole
-      let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
+        let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
+        let l:gf_size_whole = l:gf_size_whole + 1
+        let l:new_font_size = ':h'.l:gf_size_whole
+        let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
     endfunction
     function! FontSizeMinus ()
-      let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
-      let l:gf_size_whole = l:gf_size_whole - 1
-      let l:new_font_size = ':h'.l:gf_size_whole
-      let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
+        let l:gf_size_whole = matchstr(&guifont, '\(:h\)\@<=\d\+$')
+        let l:gf_size_whole = l:gf_size_whole - 1
+        let l:new_font_size = ':h'.l:gf_size_whole
+        let &guifont = substitute(&guifont, ':h\d\+$', l:new_font_size, '')
     endfunction
 endif
-
-if has("gui_running")
-    nmap <S-F12> :call FontSizeMinus()<CR>
-    nmap <F12> :call FontSizePlus()<CR>
-
-    set guifont=fira_code\ SemiBold:h9
-    "set guifont=ubuntu_mono:h10:b		" font:size:weight
-    "set guicursor+=i:ver100-iCursor	" block cursor
-
-    if has("win32")
-        " Gvim fullscreen toggle => github.com/derekmcloughlin/gvimfullscreen_win32
-        map <F11> <Esc>:call libcallnr("gvimfullscreen.dll", "ToggleFullScreen", 0)<CR>
-    endif
-
-    set guioptions -=m				" remove menubar
-    set guioptions -=r				" remove the left &
-    set guioptions -=L				" right scrollbar
-    set guioptions -=T				" remove toolbar
-    set guioptions -=e				" terminal style tabs
 endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Misc
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
-set expandtab
+" Colors
+let g:gruvbox_italic = '0'
+let g:gruvbox_invert_selection = '0'
+let g:gruvbox_contrast_light = 'medium'
+let g:gruvbox_contrast_dark = 'medium'
 
-set fillchars=vert:│
-set number "relativenumber
-set scrolloff=8
-set cursorline cursorlineopt=number
+function ToggleColors()
+    if (g:colors_name == "gruvbox") | colo hybrid | else | color gruvbox | endif
+endfunction
 
-" Automatically resize panes
-autocmd VimResized * wincmd =
+set background=dark
+colorscheme gruvbox 
 
-" Quickly time out on keycodes, but never time out on mappings
-set notimeout ttimeout ttimeoutlen=200
+" Status-line
+set statusline=
+set statusline+=%{(mode()=='n')?'\ \ NORMAL\ \│':''}
+set statusline+=%{(mode()=='i')?'\ \ INSERT\ \│':''}
+set statusline+=%{(mode()=='v')?'\ \ VISUAL\ \│':''}
+set statusline+=%{(mode()=='c')?'\ \ COMMAND\ \│':''}
+set statusline+=%{(mode()=='r')?'\ \ REPLACE\ \│':''}
+set statusline+=%{(mode()=='t')?'\ \ TERMINAL\ \│':''}
+"set statusline+=\ %n\ │                             " Buffer number
+set statusline+=\ %.50F                             " File path
+set statusline+=\ %r%m%h                            " Readonly,modified,help
+set statusline+=%=                                  " Right align
+"set statusline+=│\ %{strlen(&fenc)?&fenc:'none'}\   " File encoding
+set statusline+=│\ %{&fileformat}\                  " File format
+set statusline+=│\ %Y\ \│                           " Filetype
+set statusline+=\ %02p%%\ \│                        " Percentage
+set statusline+=\ %L:%03l:%02c\                     " Total:cursor:column
+"set statusline+=│\ %{FileSize()}                    " File size
+
+" Terminal Statusline
+autocmd TerminalWinOpen * setlocal statusline=%#StatusLine#\ %.50f
+
+function! FileSize()
+    let bytes = getfsize(expand('%:p'))
+    if (bytes >= 1024) | let kbytes = bytes / 1024 | endif
+    if (exists('kbytes') && kbytes >= 1000) | let mbytes = kbytes / 1000 | endif
+    if bytes <= 0 | return '0 ' | endif
+    if (exists('mbytes')) | return mbytes . 'MB ' | elseif (exists('kbytes'))
+    return kbytes . 'KB ' | else | return bytes . 'B ' | endif
+endfunction
+
+" Function for toggling status-line
+let s:hs = 0 | function! HideStatus()
+    if s:hs  == 0 | let s:hs = 1 | set laststatus=0 noshowcmd
+    else | let s:hs = 0 | set laststatus=2 showcmd | endif
+endfunction
+
+" Automatically resize panes on window resize
+"autocmd VimResized * wincmd =
 
 " Disable automatic commenting on newline
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+
+" Open :help in new tab
+cnoreabbrev <expr> h getcmdtype() == ":" && getcmdline() == 'h' ? 'tab help' : 'h'
+cnoreabbrev <expr> help getcmdtype() == ":" && getcmdline() == 'help' ? 'tab help' : 'help'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  Mappings
@@ -110,32 +152,31 @@ let mapleader=" "
 inoremap ii <Esc>
 
 " Ctrl-Backspace
-inoremap <C-BS> <Esc>bdwi 
+imap <C-BS> <C-W>
+
+" Keep the register cleaner
+noremap c "_c
+noremap C "_C
+noremap x "_x
+noremap X "_X
 
 " Replace all
 nnoremap <leader>s :%s//g<Left><Left>
 
 " Moving lines
-vnoremap <silent> <C-k> :move-2<cr>gv
-vnoremap <silent> <C-j> :move'>+<cr>gv
+vnoremap <silent> <C-K> :move-2<cr>gv
+vnoremap <silent> <C-J> :move'>+<cr>gv
 
 " Fast quit
-noremap <C-Q> :qa!<CR>
-noremap <leader>q :q<CR>
+nnoremap <C-Q> :qa!<CR>
+nnoremap <leader>q :q<CR>
 
-" Yank to clipboard
-noremap Y "+y
+" Fast scrolling
+nnoremap <C-J> 5j
+nnoremap <C-K> 5k
 
-" Use <F10> to toggle between 'paste' and 'nopaste'
-set pastetoggle=<F10>
-
-" Scrolling
-nnoremap <C-j> 5j
-nnoremap <C-k> 5k
-
-" Buffer navigation
-nnoremap <TAB> :bnext<CR>
-nnoremap <S-TAB> :bprevious<CR>
+" Make Y behave like other capitals (C,D)
+nnoremap Y y$
 
 " Better indenting
 nnoremap < <<
@@ -143,41 +184,153 @@ nnoremap > >>
 vnoremap < <gv
 vnoremap > >gv
 
-" Perform dot commands over visual blocks
+" Add newline without leaving normal mode
+nnoremap <leader>o o<Esc>
+nnoremap <leader>O O<Esc>
+
+" Buffer navigation
+nnoremap <TAB> :buffers<CR>:buffer<Space>
+
+" Toggle Netrw filetree (plugin?)
+nnoremap <silent> <C-N> :call ToggleVExplorer()<CR>
+
+" Fuzzy file search
+nnoremap <C-P> :find **<C-D>
+
+" Perform dot commands over visual selections
 vnoremap . :normal .<CR>
+
+" Yank to clipboard
+vnoremap <leader>y "+y
+
+" Paste from clipboard
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
 
 " Change directory to current file
 nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Splits
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set splitbelow splitright
+" Toggle text wrapping
+nnoremap <F9> :set wrap!<CR>
+
+" Toggle colors
+nnoremap <silent> <S-F10> :call ToggleColors()<CR>
+
+" Toggle between light & dark mode
+nnoremap <silent> <F10> :let &bg=(&bg=="dark"?"light":"dark")<CR>
+
+" Toggle status-line
+nnoremap <silent> <S-F9> :call HideStatus()<CR>
+
+" Toggle IndentLines (plugin)
+nnoremap <silent> <F2> :IndentLinesToggle<CR>
+
+" Toggle Goyo-Limelight (plugin)
+noremap <silent> <S-F11> :Goyo<CR>
+
+" FZF (plugin)
+nnoremap <leader>zf :FZF<CR>
+nnoremap <leader>zF :Files<CR>
+nnoremap <leader>zh :History<CR>
+nnoremap <leader>zb :Buffers<CR>
 
 " Split navigations
-noremap <leader>j <C-W><C-J>
-noremap <leader>k <C-W><C-K>
-noremap <leader>l <C-W><C-L>
-noremap <leader>h <C-W><C-H>
+tnoremap <C-N> <C-\><C-N>
+nnoremap <leader>j <C-W><C-J>
+nnoremap <leader>k <C-W><C-K>
+nnoremap <leader>l <C-W><C-L>
+nnoremap <leader>h <C-W><C-H>
 
 " Split Resizing
-noremap <silent> <C-Up> :res +3<CR>
-noremap <silent> <C-Down> :res -3<CR>
-noremap <silent> <C-Left> :vert res +3<CR>
-noremap <silent> <C-Right> :vert res -3<CR>
+nnoremap <silent> <C-Up> :res +3<CR>
+nnoremap <silent> <C-Down> :res -3<CR>
+nnoremap <silent> <C-Left> :vert res +3<CR>
+nnoremap <silent> <C-Right> :vert res -3<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"  Colors
+"  Plugin Settings
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set termguicolors
 
-let g:gruvbox_italic = '0'
-let g:gruvbox_contrast_light = 'soft'
-let g:gruvbox_contrast_dark = 'medium'
-let g:gruvbox_invert_selection = '0'
-let g:gruvbox_vert_split = 'bg1'
-let g:nord_bold_vertical_split_line = 1
+" Netrw
+""""""""
+function! ToggleVExplorer()
+    if exists("t:expl_buf_num")
+        let expl_win_num = bufwinnr(t:expl_buf_num)
+        let cur_win_num = winnr()
+        if expl_win_num != -1
+            while expl_win_num != cur_win_num
+                exec "wincmd w"
+                let cur_win_num = winnr()
+            endwhile
+            close
+        endif
+        unlet t:expl_buf_num
+    else
+         Vexplore
+         let t:expl_buf_num = bufnr("%")
+    endif
+endfunction
 
-let g:lightline = {'colorscheme': 'gruvbox',}
-set bg=dark
-colorscheme gruvbox
+function! NetrwMapping()
+    nmap <buffer> l <CR>
+    nmap <buffer> . gh
+    setlocal statusline:\ Netrw
+    setlocal cursorline cursorlineopt=both
+endfunction
+
+augroup NetrwOptions
+    autocmd!
+    autocmd filetype netrw call NetrwMapping()
+    " Automatically quit Vim if Netrw is the only window
+    autocmd WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&filetype") == "netrw"|q|endif
+augroup END
+
+" Disable Header
+let g:netrw_banner=0
+
+" Absolute width of netrw window
+let g:netrw_winsize = -28
+
+" Tree-view
+let g:netrw_liststyle = 3
+
+" Sort is affecting only: directories on the top, files below
+let g:netrw_sort_sequence = '[\/]$,*'
+
+" Use the previous window to open file
+let g:netrw_browse_split = 4
+
+" Startify
+"""""""""""
+let g:startify_custom_header =
+    \ 'startify#pad(g:ascii + startify#fortune#boxed())'
+let g:ascii = [
+    \ 'Vi IMproved',
+    \]
+let g:startify_padding_left = 10
+let g:startify_lists = [
+    \ { 'header': ['          Recent Files'],            'type': 'files' },
+    \ { 'header': ['          '. getcwd()], 'type': 'dir' },
+    \ ]
+
+" Vim-Slime
+""""""""""""
+let g:slime_target = "vimterminal"
+
+" Rainbow Parentheses
+""""""""""""""""""""""
+autocmd FileType lisp,clojure,scheme RainbowParentheses
+
+" Goyo,Limelight
+"""""""""""""""""
+autocmd! User GoyoEnter Limelight
+autocmd! User GoyoLeave Limelight!
+
+" Vim-Sneak
+""""""""""""
+let g:sneak#label = 1
+
+" IndentLine
+"""""""""""""
+let g:indentLine_enabled = 0
+let g:indentLine_char = '│'
