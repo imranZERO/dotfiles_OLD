@@ -1,7 +1,0 @@
-#GLFW window, GLEW opengl extension
-all:
-	g++ *.cpp -o openGL -lglew32 -lglfw3 -lopengl32 -lgdi32 -luser32 -lkernel32 -mwindows
-
-#GLUT window creation
-glut:
-	g++ *.c -o main -Wall -lglut32 -lopengl32 -lglu32 -mwindows
