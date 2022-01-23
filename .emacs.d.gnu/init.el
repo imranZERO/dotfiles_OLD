@@ -1,10 +1,15 @@
 (require 'package)
 (add-to-list 'package-archives
             '("melpa" . "https://melpa.org/packages/"))
-;(package-refresh-contents)
+; (package-refresh-contents)
 (package-initialize)
 
 (add-to-list 'load-path "~/.emacs.d/plug")
+
+(setq make-backup-files nil)
+
+(load (expand-file-name "~/quicklisp/slime-helper.el"))
+(setq inferior-lisp-program "sbcl")
 
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
@@ -15,16 +20,15 @@
                    (float-time
                      (time-subtract after-init-time before-init-time)))
            gcs-done))
-
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 
 (custom-set-faces
- '(default ((t (:family "Jetbrains Mono")))))
+ '(default ((t (:family "Jetbrains Mono NL")))))
 
 (custom-set-variables
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
- '(global-display-line-numbers-mode t)
+ '(global-display-line-numbers-mode nil)
  '(menu-bar-mode nil)
  '(package-selected-packages
    '(counsel ivy which-key general evil-tutor evil-collection evil use-package))
@@ -47,8 +51,8 @@
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 ;; Fast scrolling
-(global-set-key (kbd "C-j") (kbd "5j"))
-(global-set-key (kbd "C-k") (kbd "5k"))
+(global-set-key (kbd "M-j") (kbd "5j"))
+(global-set-key (kbd "M-k") (kbd "5k"))
 
 ;; Increase/Decrease font size
 (global-set-key (kbd "<f12>") 'text-scale-increase)  
@@ -73,62 +77,4 @@
   (evil-collection-init))
 (use-package evil-tutor)
 
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
-
-(use-package doom-themes
-  :ensure t
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-horizon t))
-
-(require 'zen-mode)
-  (global-set-key (kbd "<S-f11>") 'zen-mode)
-
-
-(use-package general
-  :after evil
-  :config
-  (general-create-definer efs/leader-keys
-    :keymaps '(normal insert visual emacs)
-    :prefix "SPC"
-    :global-prefix "C-SPC")
-
-  (efs/leader-keys
-    "t"  '(:ignore t :which-key "toggles")
-    "tt" '(counsel-load-theme :which-key "choose theme")))
-
-(use-package which-key
-  :defer 0
-  :diminish which-key-mode
-  :config
-  (which-key-mode)
-  (setq which-key-idle-delay 1))
-
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
-
-(use-package counsel
-  :bind (("C-M-j" . 'counsel-switch-buffer)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
-  :config
-  (counsel-mode 1))
+(load-theme 'leuven)
