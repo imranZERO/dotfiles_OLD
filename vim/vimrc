@@ -1,27 +1,28 @@
 " O------------------------------------------------------------------O
 " |  Essentials                                                      |
 " O------------------------------------------------------------------O
-filetype indent plugin on | syntax on
+filetype indent plugin on | syntax enable syntax on
 set nocompatible encoding=utf-8 hidden confirm
 set path+=** noswapfile nobackup hlsearch incsearch
-set belloff=all mouse=a laststatus=2 linespace=0
+set fileformats=unix,dos magic secure belloff=all
 set exrc wildmenu showcmd nomodeline noshowmode
 set ignorecase smartcase autoindent smartindent
 set splitbelow splitright autoread lazyredraw ttyfast
 set notimeout ttimeout ttimeoutlen=200 nostartofline
+set mouse=a laststatus=2 nrformats-=octal linespace=0
 set scrolloff=6 sidescrolloff=12 sidescroll=1
+set nonumber numberwidth=5 fillchars=vert:\│,
 set tabstop=4 shiftwidth=4 softtabstop=4 expandtab
-set nonumber numberwidth=5 fillchars=vert:\│
 set wildmode=longest,list,full backspace=indent,eol,start
 set listchars+=tab:\│\ ,space:·,precedes:<,extends:>,eol:¬
-set nrformats-=octal breakindent | let &showbreak = '» '
-set foldmethod=manual foldcolumn=0
+set foldmethod=manual foldcolumn=1 shortmess+=I
+set wildignore=*.o,*.exe,*.dll,*.png,*.jpg
+set breakindent | let &showbreak = '» '
 
 " O------------------------------------------------------------------O
 " |  Plugins (with VIM8 plugin manager)                              |
 " O------------------------------------------------------------------O
-packadd fzf                         " junegunn/fzf
-packadd fzf.vim
+packadd fzf | packadd fzf.vim       " junegunn/fzf
     let g:fzf_layout = { 'down': '40%' }
     let g:fzf_colors = { 'border': ['fg', 'Ignore'] }
     autocmd! FileType fzf
@@ -35,9 +36,11 @@ packadd vim-commentary              " tpope/vim-commentary
 packadd vim-slime                   " jpalardy/vim-slime
     let g:slime_target = "vimterminal"
 packadd vim-surround                " tpope/vim-surround
+packadd vim-repeat                  " tpope/vim-repeat
 packadd multiterm.vim               " chengzeyi/multiterm.vim
 packadd rainbow_parentheses.vim     " junegunn/rainbow_parentheses
     autocmd FileType * RainbowParentheses
+    " autocmd FileType lisp,clojure,scheme RainbowParentheses
 packadd vim-polyglot                " sheerun/vim-polyglot
 packadd goyo.vim                    " junegunn/goyo.vim
 packadd awesome-vim-colorschemes    " rafi/awesome-vim-colorschemes
@@ -50,8 +53,11 @@ let loaded_logiPat = 1
 " |  Gui                                                             |
 " O------------------------------------------------------------------O
 if has("gui_running")
-    set guifont=jetbrains_mono\ Semibold:h10
-    " set guifont=fira_code:h11:b            " font:size:weight
+    " set guifont=consolas:h11
+    " set guifont=terminus:h14
+    set guifont=jetbrains_mono_nl_regular:h11
+    " set guifont=jetbrains_mono\ Semibold:h10
+    " set guifont=fira_code:h10:b            " font:size:weight
 
     set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor
     set guicursor=i-ci:hor10-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
@@ -71,18 +77,28 @@ if has("gui_running")
     if has("win32")
         set renderoptions=type:directx
         " Gvim fullscreen toggle - github.com/derekmcloughlin/gvimfullscreen_win32
-        noremap <M-cr> <Esc>:call libcallnr("gvimfullscreen_64.dll", "ToggleFullScreen", 0)<cr>
+        noremap <m-cr> <Esc>:call libcallnr("gvimfullscreen_64.dll", "ToggleFullScreen", 0)<cr>
         autocmd GUIEnter * simalt ~x    " Start maximized
     endif
 
     " Font resizing
     nmap <F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<cr>
-    nmap <S-F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<cr>
+    nmap <s-F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<cr>
 endif
 
 " O------------------------------------------------------------------O
 " |  Misc.                                                           |
 " O------------------------------------------------------------------O
+function! Intro()
+    if argc() || line2byte('$') != -1 || v:progname !~? '^[-gmnq]\=vim\=x\=\%[\.exe]$' || &insertmode
+        return
+    endif | enew | setlocal bh=wipe bt=nofile nobl nocuc nocul nolist nonu noswf
+    call append(" ", "Unfortunately, there's a radio connected to my brain.")
+    setlocal nomodifiable nomodified
+    nnoremap <buffer><silent> e :enew<CR>
+    nnoremap <buffer><silent> i :enew <bar> startinsert<CR>
+endfunction | autocmd VimEnter * call Intro()
+
 function! ToggleNetrw()
     if exists("t:expl_buf_num")
         let expl_win_num = bufwinnr(t:expl_buf_num)
@@ -112,7 +128,7 @@ augroup NetrwOptions
     " Quit Vim if Netrw is the only window
     autocmd WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&filetype") == "netrw"|q|endif
 augroup end
-let g:netrw_banner=0                    " Disable Header
+let g:netrw_banner = 0                  " Disable Header
 let g:netrw_winsize = -28               " Absolute width of netrw window
 let g:netrw_liststyle = 3               " Tree-view
 let g:netrw_sort_sequence = '[\/]$,*'   " Sort is affecting only: directories on the top, files below
@@ -144,10 +160,11 @@ endfunction
 
 function! BuildFile()
     exec "w"
-    if &filetype == 'python'
-        exec "vert term python %"
-    elseif &filetype == 'lua'
-        exec "vert term lua %"
+    if &filetype == 'python' | exec "vert term python %"
+    elseif &filetype == 'lua'| exec "vert term lua %"
+    elseif &filetype == 'lisp' | exec "vert term sbcl --script %"
+    elseif &filetype == 'c'| exec "make"
+    elseif &filetype == 'cpp' | exec "make"
     endif
 endfunction
 
@@ -183,7 +200,7 @@ function! ToggleMaximizeSplit(zoom)
         exec t:restore_zoom.cmd
         unlet t:restore_zoom
     elseif a:zoom
-       let t:restore_zoom = { 'win': winnr(), 'cmd': winrestcmd() }
+        let t:restore_zoom = { 'win': winnr(), 'cmd': winrestcmd() }
         exec "normal \<C-W>\|\<C-W>_"
     endif
 endfunction
@@ -198,6 +215,17 @@ endfunction
 
 function! ToggleLineNumber()
     if &number | setlocal nonumber | else | setlocal number | endif
+endfunction
+
+let s:ScrollBar = 0
+function! ToggleScrollBar()
+    if s:ScrollBar == 0
+        let s:ScrollBar = 1
+        set go+=r
+    else
+        let s:ScrollBar = 0
+        set go-=r
+    endif
 endfunction
 
 function! ToggleFoldColumn()
@@ -215,25 +243,27 @@ let g:gruvbox_contrast_light = 'hard' | let g:gruvbox_contrast_dark = 'medium'
 set termguicolors background=dark
 colorscheme gruvbox
 
-if &bg=="dark"
-    let g:terminal_ansi_colors = [
-        \ "#272822", "#f92672", "#a6e22e", "#f4bf75", "#66d9ef", "#ae81ff", "#a1efe4", "#f8f8f2",
-        \ "#75715e", "#f92672", "#a6e22e", "#f4bf75", "#66d9ef", "#ae81ff", "#a1efe4", "#f9f8f5",]
-else
-    let g:terminal_ansi_colors = [
-        \ "#774f38", "#b95942", "#308444", "#996e1f", "#50707e", "#aa56b2", "#308090", "#ede4d4",
-        \ "#878787", '#f10000', '#82a3b3', '#c79747', '#678797', '#afafaf', '#afafaf', '#f7efdf',]
-endif
-
 function! RefreshColorConfig()
-    highlight! link statusline cursorline
-    highlight! link foldcolumn conceal
-    highlight Cursor guifg=NONE guibg=#00F700 gui=NONE
+    " highlight! link statusline cursorline
+    highlight! link foldcolumn nontext
+    highlight! link vertsplit nontext
+    if &bg=="light"
+        highlight Cursor guifg=NONE guibg=#000000 gui=NONE
+        highlight! Terminal guifg=#3C3836 ctermfg=249 guibg=#EBDBB2 ctermbg=0
+        let g:terminal_ansi_colors = [
+            \ "#774f38", "#b95942", "#308444", "#996e1f", "#50707e", "#aa56b2", "#308090", "#ede4d4",
+            \ "#878787", '#f10000', '#82a3b3', '#c79747', '#678797', '#afafaf', '#afafaf', '#f7efdf',]
+    elseif &bg=="dark"
+        highlight Cursor guifg=NONE guibg=#00F700 gui=NONE cterm=NONE
+        highlight! Terminal guifg=#DAB98F ctermfg=249 guibg=#161616 ctermbg=0
+        let g:terminal_ansi_colors = [
+            \ "#272822", "#f92672", "#a6e22e", "#f4bf75", "#66d9ef", "#ae81ff", "#a1efe4", "#f8f8f2",
+            \ "#75715e", "#f92672", "#a6e22e", "#f4bf75", "#66d9ef", "#ae81ff", "#a1efe4", "#f9f8f5",]
+    endif
 endfunction
 autocmd VimEnter * call RefreshColorConfig()
 autocmd ColorScheme * call RefreshColorConfig()
 
-" Tabline
 set tabline=%!Tabline()
 function! Tabline()
     let s = ''
@@ -263,40 +293,31 @@ function! Tabline()
 endfunction
 
 function! Statusline()
-    let g:cmode={
-            \ 'n'  : 'NORMAL ',
-            \ 'v'  : 'VISUAL ',
-            \ 'V'  : 'V·LINE ',
-            \ "\<C-V>" : 'V·BLOCK ',
-            \ "s"  : 'SELECT ',
-            \ "S"  : 'S·LINE ',
-            \ 'i'  : 'INSERT ',
-            \ 'R'  : 'REPLACE ',
-            \ 'r'  : 'PROMPT ',
-            \ 'c'  : 'COMMAND ',
-            \ 't'  : 'TERMINAL ',
-            \}
+    let g:cmode = {"n": "NORMAL", "no": "NORMAL·OPERATOR PENDING", "v": "VISUAL",
+    \ "V": "V·LINE", "\<C-V>": "V·BLOCK", "s": "SELECT", "S": "S·LINE", "^S": "S·BLOCK",
+    \ "i": "INSERT", "R": "REPLACE", "Rv": "V·REPLACE", "c": "COMMAND", "cv": "VIM EX",
+    \ "ce": "Ex", "r": "PROMPT", "rm": "MORE", "r?": "CONFIRM", "!": "SHELL", "t": "TERMINAL"}
     set statusline=
-    set statusline+=\ %{g:cmode[mode()]}\|              " Current mode
-    " set statusline+=\ [%n]                              " Buffer number
-    set statusline+=\ %.40F                             " File path full
-    " set statusline+=\ %f                                " File path relative
-    set statusline+=\ %r%m%h                            " Readonly,modified,help
-    " set statusline+=•\ %{FileSize()}                    " File size
-        " function! FileSize()
-        "     let bytes = getfsize(expand('%:p'))
-        "     if (bytes >= 1024) | let kbytes = bytes / 1024 | endif
-        "     if (exists('kbytes') && kbytes >= 1000) | let mbytes = kbytes / 1000 | endif
-        "     if bytes <= 0 | return '0 ' | endif
-        "     if (exists('mbytes')) | return mbytes . 'MB ' | elseif (exists('kbytes'))
-        "     return kbytes . 'KB ' | else | return bytes . 'B ' | endif
-        " endfunction
-    " set statusline+=[%02p%%]                            " Percentage
-    set statusline+=%=                                  " Right align
-    " set statusline+=|\ %{strlen(&fenc)?&fenc:'none'}\   " File encoding
-    set statusline+=\ %{&fileformat}\                   " File format
-    set statusline+=\|\ %{strlen(&ft)?&ft:'none'}\ \|   " Filetype
-    set statusline+=\ %02c:%3l/%L\                      " Column:line/total
+    set statusline+=\ %{g:cmode[mode()]}\ \|               " Current mode
+    " set statusline+=\ [%n]                                 " Buffer number
+    set statusline+=\ %.40F                                " File path full
+    " set statusline+=\ %f                                   " File path relative
+    " set statusline+=\ [%{FileSize()}]                      " File size
+    "     function! FileSize()
+    "         let bytes = getfsize(expand('%:p'))
+    "         if (bytes >= 1024) | let kbytes = bytes / 1024 | endif
+    "         if (exists('kbytes') && kbytes >= 1000) | let mbytes = kbytes / 1000 | endif
+    "         if bytes <= 0 | return '0' | endif
+    "         if (exists('mbytes')) | return mbytes . 'MB' | elseif (exists('kbytes'))
+    "         return kbytes . 'KB' | else | return bytes . 'B' | endif
+    "     endfunction
+    " set statusline+=\ [%02p%%]                             " Percentage
+    set statusline+=\ %r%m%h                               " Readonly,modified,help
+    set statusline+=%=                                     " Right align
+    " set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\ \|    " File encoding
+    set statusline+=\ %{&fileformat}\                      " File format
+    set statusline+=\|\ %{strlen(&ft)?&ft:'none'}\ \|      " Filetype
+    set statusline+=\ %02c:%3l/%L\                         " Column:line/total
     autocmd TerminalWinOpen * setlocal statusline=%#StatusLine#\ %.60f
 endfunction | autocmd VimEnter * call Statusline()
 
@@ -328,22 +349,34 @@ command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
 autocmd ModeChanged *:[vV\x16]* set list
 autocmd ModeChanged [vV\x16]*:* set nolist
 
+" Remove all trailing whitespace and newlines at end of file & reset cursor position
+augroup whitespace
+    autocmd BufWritePre * let currPos = getpos(".")
+    autocmd BufWritePre * %s/\s\+$//e
+    autocmd BufWritePre * %s/\n\+\%$//e
+    autocmd BufWritePre *.[ch] %s/\%$/\r/e
+    autocmd BufWritePre * cal cursor(currPos[1], currPos[2])
+augroup end
+
 " O------------------------------------------------------------------O
 " |  Mappings                                                        |
 " O------------------------------------------------------------------O
-let mapleader=" "
-inoremap ii <Esc>
+nnoremap <F1> <nop>
+inoremap <F1> <nop>
 
-nnoremap <C-J> 5j
-nnoremap <C-K> 5k
+inoremap <m-i> <Esc>
 
-nnoremap <leader>G <Esc>:w<cr>
-nnoremap <silent> <leader>q :q<cr>
-tnoremap <silent> <C-w>q exit<cr>
+nnoremap <m-j> 5j
+nnoremap <m-k> 5k
+vnoremap <m-j> 5j
+vnoremap <m-k> 5k
 
-nnoremap <silent> <leader><cr> :vertical terminal<cr>
-nnoremap <silent> <C-Q> :call ToggleQuickFix()<cr>
-nnoremap <silent> <leader><leader> :call ToggleNetrw()<cr>
+nnoremap <space>G <Esc>:w<cr>
+nnoremap <silent> <space>q :q<cr>
+tnoremap <silent> <c-w>q exit<cr>
+tnoremap <silent> <c-l> clear<cr>
+nnoremap <silent> <space><cr> :vertical terminal<cr>clear<cr>
+nnoremap <F7> :call BuildFile()<cr>
 
 " Swap ` and ' for marks
 nnoremap ' `
@@ -353,57 +386,59 @@ nnoremap ` '
 nnoremap c "_c
 nnoremap C "_C
 
-" Run current filetype
-nnoremap <F5> :call BuildFile()<cr>
-
 " Make Y behave like other capitals
 nnoremap Y y$
 
 " Clear search highlighting & refresh statusline
-nnoremap <silent> <C-L> :nohlsearch<cr>:call Statusline()<cr><C-L>
+nnoremap <silent> <c-l> :nohlsearch<cr>:call Statusline()<cr><c-l>
 
 " Keeping it centered
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
 " Don't lose selection when shifting sidewards
-xnoremap < <gv
-xnoremap > >gv
+xnoremap < <gv^
+xnoremap > >gv^
 
 " Moving lines
-xnoremap <C-J> :m '>+1<cr>gv=gv
-xnoremap <C-K> :m '<-2<cr>gv=gv
+xnoremap <c-j> :m '>+1<cr>gv=gv
+xnoremap <c-k> :m '<-2<cr>gv=gv
 
 " Access to system clipboard
-xnoremap <leader>y "+y
-nnoremap <leader>p "+p
-nnoremap <leader>P "+P
-tnoremap <S-insert> <C-W>"+
+xnoremap <space>y "+y
+nnoremap <space>p "+p
+nnoremap <space>P "+P
+tnoremap <s-insert> <c-w>"+
+tnoremap <c-v> <c-w>"+
 
 " Search & Replace ('c' confirms)
-nnoremap <leader>s :%s//gc<Left><Left><Left>
+nnoremap <space>s :%s//gc<Left><Left><Left>
 
 " Delete all occurences of selected text
-xnoremap <Leader>d y:%s/<C-r>"//gc<cr>
+xnoremap <space>d y:%s/<c-r>"//gc<cr>
 
 " Change directory to current file
-nnoremap <leader>cd :cd %:p:h<cr>:pwd<cr>
+nnoremap <space>cd :cd %:p:h<cr>:pwd<cr>
 
 " Saner command-line history
 cnoremap <expr> <c-n> wildmenumode() ? "\<c-n>" : "\<down>"
 cnoremap <expr> <c-p> wildmenumode() ? "\<c-p>" : "\<up>"
 
+" Change forward/back slashes
+nnoremap <silent> <space>c/ :let tmp=@/<Bar>s:\\:/:ge<Bar>let @/=tmp<Bar>noh<CR>
+nnoremap <silent> <space>c<Bslash> :let tmp=@/<Bar>s:/:\\:ge<Bar>let @/=tmp<Bar>noh<CR>
+
 " Fuzzy file search
-nnoremap <leader>. :find **
+nnoremap <space>. :find **
 
 " File search
-nnoremap <leader>> :cd %:p:h<cr>:find <C-D>
+nnoremap <space>> :cd %:p:h<cr>:find <C-D>
 
 " Perform dot commands over visual selections
 xnoremap . :normal .<cr>
 
 " J counterpart
-nnoremap K :<C-u>call BreakHere()<cr>
+nnoremap K :<c-u>call BreakHere()<cr>
 
 " Auto-insert closing parenthesis/brace/quotes
 inoremap ( ()<Left>
@@ -417,69 +452,79 @@ inoremap {<cr> {<cr>}<Esc>O
 inoremap <expr> ) getline('.')[col('.')-1] == ")" ? "\<Right>" : ")"
 inoremap <expr> } getline('.')[col('.')-1] == "}" ? "\<Right>" : "}"
 
+" Command mode
+cnoremap <c-bs> <c-w>
+cnoremap <c-h> <left>
+cnoremap <c-l> <right>
+
 " Insert mode
-inoremap <C-h> <left>
-inoremap <C-l> <right>
-inoremap <C-u> <C-g>u<C-u>
-inoremap <silent> <C-Up> <C-o>:<C-u>execute "keepjumps norm! " . v:count1 . "{"<cr>
-inoremap <silent> <C-Down> <C-o>:<C-u>execute "keepjumps norm! " . v:count1 . "}"<cr>
-inoremap <S-Left> <Esc>v<C-G><Left>
-inoremap <S-Right> <Esc>v<C-G><Right>
-inoremap <C-s> <Esc>:w<cr>a
+inoremap <c-bs> <c-w>
+inoremap <c-h> <left>
+inoremap <c-l> <right>
+inoremap <c-a> <home>
+inoremap <c-e> <end>
+inoremap <c-u> <c-g>u<c-u>
+inoremap <silent> <c-Up> <c-o>:<c-u>execute "keepjumps norm! " . v:count1 . "{"<cr>
+inoremap <silent> <c-Down> <c-o>:<c-u>execute "keepjumps norm! " . v:count1 . "}"<cr>
+inoremap <s-Left> <Esc>v<c-g><Left>
+inoremap <s-Right> <Esc>v<c-g><Right>
+inoremap <c-s> <Esc>:w<cr>a
 
 " Buffer navigation
-nnoremap <BS> <C-^>
-nnoremap <leader>bn :bn<cr>
-nnoremap <leader>bp :bp<cr>
-nnoremap <leader>bk :bw<cr>
-nnoremap <leader>bo :%bd\|e#\|bd#\|'"<cr>
-nnoremap <leader>, :buffers<cr>:buffer<Space>
+nnoremap <bs> <c-^>
+nnoremap <space>bn :bn<cr>
+nnoremap <space>bp :bp<cr>
+nnoremap <space>bd :bd<cr>
+nnoremap <space>bw :bw<cr>
+nnoremap <space>bo :%bd\|e#\|bd#\|'"<cr>
+nnoremap <space>, :buffers<cr>:buffer<Space>
 
 " Split navigation
-nnoremap <leader>w <C-W>
-tnoremap <C-N> <C-\><C-N>
-tnoremap <C-SPACE> <C-W>p
-noremap <C-SPACE> <C-W>w
+nnoremap <space>w <c-w>
+tnoremap <c-n> <c-\><c-n>
+tnoremap <c-space> <c-w>p
+noremap <c-space> <c-w>w
 
 " Split Resizing
-nnoremap <silent> <C-Up> :res +3<cr>
-nnoremap <silent> <C-Down> :res -3<cr>
-nnoremap <silent> <C-Left> :vert res +3<cr>
-nnoremap <silent> <C-Right> :vert res -3<cr>
+nnoremap <silent> <c-Up> :res +3<cr>
+nnoremap <silent> <c-Down> :res -3<cr>
+nnoremap <silent> <c-Left> :vert res +3<cr>
+nnoremap <silent> <c-Right> :vert res -3<cr>
 
 " Maximize split
-nnoremap <silent> <Leader>wm :call ToggleMaximizeSplit(v:true)<cr>
-
-" Toggle floating terminal (plugin)
-nmap <silent> <F1> <Plug>(Multiterm)
-tmap <silent> <F1> <Plug>(Multiterm)
+nnoremap <silent> <space>wm :call ToggleMaximizeSplit(v:true)<cr>
 
 " FZF (plugin)
-nnoremap <leader>r :Rg<cr>
-nnoremap <leader>ff :FZF<cr>
-nnoremap <leader>fF :Files<cr>
-nnoremap <leader>fh :History<cr>
-nnoremap <leader>f: :History:<cr>
-nnoremap <leader>f/ :History/<cr>
-nnoremap <leader>fb :Buffers<cr>
-nnoremap <leader>fm :Marks<cr>
-nnoremap <leader>fl :Lines<cr>
-nnoremap <leader>fc :Colors<cr>
+nnoremap <space>r :Rg<cr>
+nnoremap <space>ff :FZF<cr>
+nnoremap <space>fF :Files<cr>
+nnoremap <space>fh :History<cr>
+nnoremap <space>f: :History:<cr>
+nnoremap <space>f/ :History/<cr>
+nnoremap <space>fb :Buffers<cr>
+nnoremap <space>fm :Marks<cr>
+nnoremap <space>fl :Lines<cr>
+nnoremap <space>fc :Colors<cr>
 " ! Opens in fullscreen
-nnoremap <leader>R :Rg!<cr>
-nnoremap <leader>Ff :FZF!<cr>
-nnoremap <leader>FF :Files!<cr>
-nnoremap <leader>Fh :History!<cr>
-nnoremap <leader>Fl :Lines!<cr>
+nnoremap <space>R :Rg!<cr>
+nnoremap <space>Ff :FZF!<cr>
+nnoremap <space>FF :Files!<cr>
+nnoremap <space>Fh :History!<cr>
+nnoremap <space>Fl :Lines!<cr>
 
 " Toggles
-nnoremap <silent> <leader>tw :set invwrap wrap?<cr>
-nnoremap <silent> <leader>tl :set invlist list?<cr>
-nnoremap <silent> <leader>ti :call ToggleIndentGuides()<cr>
-nnoremap <silent> <leader>tn :call ToggleLineNumber()<cr>
-nnoremap <silent> <leader>tt :call ToggleTabLine()<cr>
-nnoremap <silent> <leader>ts :call ToggleStatusLine()<cr>
-nnoremap <silent> <leader>tg :call ToggleGUICruft()<cr>
-nnoremap <silent> <leader>tf :call ToggleFoldColumn()<cr>
-nnoremap <silent> <leader>tc :let &bg=(&bg=="dark"?"light":"dark")<cr>
-nnoremap <silent> <leader>tz :Goyo<cr>
+nnoremap <silent> <c-q> :call ToggleQuickFix()<cr>
+nnoremap <silent> <space><space> :call ToggleNetrw()<cr>
+nnoremap <silent> <space>tw :set invwrap wrap?<cr>
+nnoremap <silent> <space>tl :set invlist list?<cr>
+nnoremap <silent> <space>ti :call ToggleIndentGuides()<cr>
+nnoremap <silent> <space>tn :call ToggleLineNumber()<cr>
+nnoremap <silent> <space>tt :call ToggleTabLine()<cr>
+nnoremap <silent> <space>ts :call ToggleStatusLine()<cr>
+nnoremap <silent> <space>tg :call ToggleGUICruft()<cr>
+nnoremap <silent> <space>tb :call ToggleScrollBar()<cr>
+nnoremap <silent> <space>tf :call ToggleFoldColumn()<cr>
+nnoremap <silent> <space>tc :let &bg=(&bg=="dark"?"light":"dark")<cr>
+nnoremap <silent> <space>tz :Goyo<cr>
+nmap <silent> <c-z> <Plug>(Multiterm)
+tmap <silent> <c-z> <Plug>(Multiterm)
