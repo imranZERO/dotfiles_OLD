@@ -7,6 +7,7 @@
  -------------------------------------------------------
  :call libcallnr("vimtweak.dll", "SetAlpha", 200)
  :call libcallnr("vimtweak.dll", "EnableMaximize", 1)
+ :call libcallnr("vimtweak.dll", "EnableCaption", 1)
  :call libcallnr("vimtweak.dll", "EnableTopMost", 1)
  :call libcallnr("vimtweak.dll", "ToggleFullScreen", 0)
 */

@@ -1,24 +1,25 @@
 vim9script
+
 # O------------------------------------------------------------------O
 # |  Essentials                                                      |
 # O------------------------------------------------------------------O
 set nocompatible encoding=utf-8 hidden confirm
-\ path+=** noswapfile nobackup hlsearch incsearch
-\ fileformats=unix,dos magic secure belloff=all
+\ path+=** noswapfile nobackup fileformats=unix,dos
+\ magic secure belloff=all hlsearch incsearch
 \ exrc wildmenu showcmd nomodeline noshowmode
 \ ignorecase smartcase autoindent smartindent
-\ splitbelow splitright autoread lazyredraw ttyfast
+\ autoread lazyredraw ttyfast splitbelow splitright
 \ notimeout ttimeout ttimeoutlen=200 nostartofline
 \ mouse=a laststatus=2 nrformats-=octal linespace=0
-\ noruler foldcolumn=1 breakindent showbreak=»
+\ noruler breakindent showbreak=» foldcolumn=1
 \ tabstop=4 shiftwidth=4 softtabstop=4 expandtab
-\ wildignore=*.o,*.pyc,*.exe,*.dll,*.png,*.jpg
 \ scrolloff=6 sidescrolloff=12 sidescroll=1 synmaxcol=250
-\ nonumber numberwidth=5 fillchars=vert:\│, shortmess+=I
-\ wildmode=longest,list,full backspace=indent,eol,start
+\ nonumber numberwidth=5 fillchars=vert:\│, termguicolors
+\ backspace=indent,eol,start shortmess+=I shortmess-=S
 \ listchars+=tab:\│\ ,space:·,precedes:<,extends:>,eol:¬
-\ virtualedit=block cursorlineopt=screenline showtabline=1
-\ termguicolors
+\ virtualedit=block cursorlineopt=screenline commentstring=#\ %s
+\ wildignore=*.o,*.exe,*.pyc,*.dll,*.png,*.jpg,*.gif,*.pdf
+\ wildmode=full wildoptions=pum,tagfile
 
 # O------------------------------------------------------------------O
 # |  Plugins (with VIM8 plugin manager)                              |
@@ -37,12 +38,13 @@ packadd vim-slime                   # jpalardy/vim-slime
 packadd rainbow_parentheses.vim     # junegunn/rainbow_parentheses
     autocmd FileType * RainbowParentheses
     # autocmd FileType lisp,clojure,scheme RainbowParentheses
+packadd vim-fugitive                # tpope/vim-fugitive
 packadd vim-surround                # tpope/vim-surround
 packadd vim-repeat                  # tpope/vim-repeat
 packadd multiterm.vim               # chengzeyi/multiterm.vim
 packadd vim-polyglot                # sheerun/vim-polyglot
+    command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
 packadd vim-commentary              # tpope/vim-commentary
-    autocmd FileType c,cpp setlocal commentstring=//\ %s
 packadd goyo.vim                    # junegunn/goyo.vim
 packadd awesome-vim-colorschemes    # rafi/awesome-vim-colorschemes
 
@@ -58,34 +60,40 @@ filetype indent plugin on | syntax enable syntax on
 # |  Gui                                                             |
 # O------------------------------------------------------------------O
 if has("gui_running")
-    # set guifont=consolas:h11 | set linespace=-1
+    # set guifont=consolas:h11
     # set guifont=terminus:h14:b
     set guifont=Fira\ Mono:h11
     # set guifont=Victor\ Mono:h11
     # set guifont=jetbrains_mono_nl_regular:h11
     # set guifont=Iosevka\ ss14:h12 | set linespace=-1
 
+    set guioptions=i
     set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor,
                 \i-ci:hor10-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
-    set guioptions=i
+
     g:ScrollBar = 0
-
-    augroup cursorline
-        autocmd WinEnter * set cursorline | autocmd WinLeave * set nocursorline
-        autocmd InsertEnter * set nocursorline | autocmd InsertLeave * set cursorline
-    augroup end
-
-    if has("win32")
-        set renderoptions=type:directx
-        # Gvim utils - gist.github.com/imranZERO/d4245f05fa3125e7575b33897d5339bb
-        g:Alpha = 0
-        g:TopMost = 0
-        autocmd GUIEnter * simalt ~x    # Start maximized
-    endif
 
     # Font resizing
     nmap <F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<cr>
     nmap <s-F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<cr>
+endif
+
+if has("gui_running") && has("win32")
+    set renderoptions=type:directx
+    # Gvim tweaks - gist.github.com/imranZERO/d4245f05fa3125e7575b33897d5339bb
+    g:Alpha = 0
+    command! SetAlpha if g:Alpha == 0 | g:Alpha = 1
+        \| libcallnr("vimtweak.dll", "SetAlpha", 220) | else
+        \| g:Alpha = 0 | libcallnr("vimtweak.dll", "SetAlpha", 255) | endif
+    g:TopMost = 0
+    command! SetTopMost if g:TopMost == 0 | g:TopMost = 1
+        \| libcallnr("vimtweak.dll", "EnableTopMost", 1) | else
+        \| g:TopMost = 0 | libcallnr("vimtweak.dll", "EnableTopMost", 0) | endif
+    g:Caption = 1
+    command! SetCaption if g:Caption == 0 | g:Caption = 1
+        \| libcallnr("vimtweak.dll", "EnableCaption", 1) | else
+        \| g:Caption = 0 | libcallnr("vimtweak.dll", "EnableCaption", 0) | endif
+    autocmd GUIEnter * simalt ~x    # Start maximized
 endif
 
 # O------------------------------------------------------------------O
@@ -95,36 +103,35 @@ function Intro()
     if argc() || line2byte('$') != -1 || v:progname !~? '^[-gmnq]\=vim\=x\=\%[\.exe]$' || &insertmode
     return | endif | enew | setlocal bh=wipe bt=nofile nobl nocuc nocul nolist nonu noswf
     call append(" ", "Unfortunately, there's a radio connected to my brain.")
-    setlocal nomodifiable nomodified | nnoremap <silent><buffer>e :enew<CR>
+    setlocal nomodifiable nomodified
+    nnoremap <silent><buffer>e :enew<CR>
     nnoremap <silent><buffer>i :enew <bar> startinsert<CR>
 endfunction
 Intro()
 
+g:NetrwIsOpen = 0
 def g:ToggleNetrw()
-    if exists("t:expl_buf_num")
-        var expl_win_num = bufwinnr(t:expl_buf_num)
-        var cur_win_num = winnr()
-        if expl_win_num != -1
-            while expl_win_num != cur_win_num
-                exec "wincmd w"
-                cur_win_num = winnr()
-            endwhile
-            close
-        endif
-        unlet t:expl_buf_num
+    if g:NetrwIsOpen
+        var i = bufnr("$")
+        while (i >= 1)
+            if (getbufvar(i, "&filetype") == "netrw")
+                silent exe "bwipeout " .. i
+            endif
+            i -= 1
+        endwhile
+        g:NetrwIsOpen = 0
     else
-        Vexplore
-        t:expl_buf_num = bufnr("%")
+        g:NetrwIsOpen = 1
+        silent Vexplore
     endif
 enddef
 def g:NetrwMapping()
     nmap <buffer> h gg<cr>
     nmap <buffer> l <cr>
     nmap <buffer> . gh
-    setlocal statusline=%f
+    setlocal statusline=\ %f
 enddef
-augroup NetrwOptions
-    autocmd!
+augroup NETRWOPTIONS | autocmd!
     autocmd filetype netrw call NetrwMapping()
     # Quit Vim if Netrw is the only window
     autocmd WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&filetype") == "netrw"|q|endif
@@ -173,9 +180,9 @@ function g:ToggleMaximizeSplit(zoom)
 endfunction
 
 # Alternate C/C++ source/header
-command! A call s:a('e')
-command! AV call s:a('botright vertical split')
-function s:a(cmd)
+command! A call g:A('e')
+command! AV call g:A('botright vertical split')
+function g:A(cmd)
     let name = expand('%:r')
     let ext = tolower(expand('%:e'))
     let sources = ['c', 'cc', 'cpp', 'cxx']
@@ -198,7 +205,7 @@ endfunction
 
 def g:BuildFile()
     exec "w"
-    set cmdheight=2
+    set cmdheight=3
     if &filetype == 'python' | exec "vert term python %"
     elseif &filetype == 'lua'| exec "vert term lua %"
     elseif &filetype == 'lisp' | exec "vert term sbcl --script %"
@@ -214,8 +221,8 @@ enddef
 g:gruvbox_italic = '0' | g:gruvbox_invert_selection = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
-# colorscheme gruvbox | set background=dark
-colorscheme cake16 | set background=light
+colorscheme gruvbox | set background=dark
+# colorscheme cake16 | set background=light
 
 def g:ColorConfig()
     highlight! link foldcolumn nontext
@@ -282,13 +289,9 @@ function g:MyTabline()
         endif
         let s ..= fname .. ' ' | if bufmodified | let s ..= '+ ' | endif
     endfor
-    let s..= '%#TabLine#'
-    let s..= '%='
-    let s..= '%#Normal#'
-    let s..= ' %{resolve(expand("%:p"))}%*'
-    let s..= '%#Normal#'
-    let s..= ' [%{strlen(&fenc)?&fenc:"none"}]'
-    let s..= ' [%{g:FileSize()}]'
+    let s..= '%*' .. '%=' .. '%#Normal#'
+    let s..= ' %{resolve(expand("%:p"))}%*' .. '%#Normal#'
+    let s..= ' [%{strlen(&fenc)?&fenc:"none"}]' .. ' [%{g:FileSize()}]'
     return s
 endfunction
 
@@ -299,18 +302,20 @@ g:cmode = {
     \ "r": "PROMPT", "rm": "MORE", "r?": "CONFIRM", "!": "SHELL", "t": "TERMINAL" }
 function g:Statusline()
     set statusline=
-    set statusline+=%#StatusLine#
     set statusline+=\ %{g:cmode[mode()]}\                       " Current mode
+    set statusline+=%<                                          " Truncate
     set statusline+=%#StatusLineNC#
     " set statusline+=\ [%n]                                      " Buffer number
-    set statusline+=\ %.40F                                     " File path full
+    " set statusline+=\ %t                                        " File name
     " set statusline+=\ %f                                        " File path relative
+    set statusline+=\ %.40F                                     " File path full
     " set statusline+=\ [%{g:FileSize()}]                         " File size
     " set statusline+=\ [%02p%%]                                  " Percentage
     set statusline+=\ %r%m%h                                    " Readonly,modified,help
     set statusline+=%=                                          " Right align
-    set statusline+=%#StatusLine#
-    let &statusline ..= "%{exists('g:asyncdo')?'[running]':''}" " AsyncDo status
+    let &statusline..="\ %{FugitiveHead()}\ "                   " Git branch
+    set statusline+=%*                                          " Default highlight
+    let &statusline..="%{exists('g:asyncdo')?'[running]':''}"   " AsyncDo status
     " set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\ \|         " File encoding
     set statusline+=\ %{&fileformat}\ \\|                       " File format
     set statusline+=\ %{strlen(&ft)?&ft:'none'}\ \\|            " Filetype
@@ -322,11 +327,11 @@ g:Statusline()
 # Automatically resize splits on window resize
 autocmd VimResized * wincmd =
 
-# Disable automatic commenting on newline
-autocmd FileType * setlocal formatoptions-=cro
-
 # Clear jumplist at startup
 autocmd VimEnter * exe 'clearjumps'
+
+# :t to :tabe
+cnoreabbrev <expr> t getcmdtype() == ":" && getcmdline() == 't' ? 'tabe' : 't'
 
 # Open :h in new tab
 cnoreabbrev <expr> h getcmdtype() == ":" && getcmdline() == 'h' ? 'tab help' : 'h'
@@ -340,12 +345,30 @@ function g:BreakHere()
     call histdel("/", -1)
 endfunction
 
-# Re-indent (vim-polyglot fucked it up)
-command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
+augroup FORMATOPTIONS | autocmd!
+    autocmd FileType * setlocal formatoptions-=cro # Disable continuation of comments to the next line
+    autocmd FileType * setlocal formatoptions+=j   # Remove a comment leader when joining lines
+    autocmd FileType * setlocal formatoptions+=l   # Don't break a line after a one-letter word
+    autocmd FileType * setlocal formatoptions+=n   # Recognize numbered lists
+    autocmd FileType * setlocal formatoptions-=q   # Don't format comments
+    autocmd FileType * setlocal formatoptions-=t   # Don't autowrap text using 'textwidth'
+augroup END
+
+def g:WipeHiddenBuffers()
+    var buffers = filter(getbufinfo(), (_, v) => v.hidden)
+    if !empty(buffers)
+        execute 'confirm bwipeout' join(mapnew(buffers, (_, v) => v.bufnr))
+    endif
+enddef
+
+augroup CURSORLINE | autocmd!
+    autocmd WinEnter * set cursorline | autocmd WinLeave * set nocursorline
+    autocmd InsertEnter * set nocursorline | autocmd InsertLeave * set cursorline
+augroup end
 
 # Set listchars visible in Visual Mode
-autocmd ModeChanged *:[vV\x16]* set list
-autocmd ModeChanged [vV\x16]*:* set nolist
+# autocmd ModeChanged *:[vV\x16]* set list
+# autocmd ModeChanged [vV\x16]*:* set nolist
 
 # Remove all trailing whitespace and newlines at end of file & reset cursor position
 var currPos = getpos(".")
@@ -353,7 +376,7 @@ autocmd BufWritePre * {
     currPos = getpos(".")
     :%s/\s\+$//e
     :%s/\n\+\%$//e
-    cal cursor(currPos[1], currPos[2])
+    cursor(currPos[1], currPos[2])
 }
 
 # O------------------------------------------------------------------O
@@ -369,9 +392,11 @@ vnoremap <m-k> 5k
 nnoremap <space>G <Esc>:w<cr>
 nnoremap <silent><space>q :q<cr>
 tnoremap <silent><c-w>q exit<cr>
-tnoremap <silent><c-l> clear<cr>
-nnoremap <silent><space><cr> :vert term<cr>clear<cr>
-nnoremap <F7> :call BuildFile()<cr>
+nnoremap <silent><space><cr> :vert term<cr>clink inject<cr><c-l>
+nnoremap <silent><F7> :call BuildFile()<cr>
+
+# Switching tabs
+nnoremap gr gT
 
 # Swap ` and ' for marks
 nnoremap ' `
@@ -396,8 +421,8 @@ xnoremap < <gv^
 xnoremap > >gv^
 
 # Moving lines
-xnoremap <c-j> :m '>+1<cr>gv=gv
-xnoremap <c-k> :m '<-2<cr>gv=gv
+vnoremap <c-j> :m '>+1<cr>gv=gv
+vnoremap <c-k> :m '<-2<cr>gv=gv
 
 # Access to system clipboard
 xnoremap <space>y "+y
@@ -444,8 +469,8 @@ inoremap " ""<Left>
 # Expand opening-brace followed by ENTER to a block and place cursor inside
 inoremap {<cr> {<cr>}<Esc>O
 # Skip over closing parenthesis/brace
-inoremap <expr> ) getline('.')[col('.')-1] == ")" ? "\<Right>" : ")"
-inoremap <expr> } getline('.')[col('.')-1] == "}" ? "\<Right>" : "}"
+inoremap <expr> ) getline('.')[col('.') - 1] == ")" ? "\<Right>" : ")"
+inoremap <expr> } getline('.')[col('.') - 1] == "}" ? "\<Right>" : "}"
 
 # Terminal mode
 if has('win32') && (&shell =~# '\<cmd\.exe$')
@@ -464,11 +489,14 @@ cnoremap <c-h> <left>
 cnoremap <c-l> <right>
 cnoremap <c-e> <end>
 cnoremap <c-a> <home>
+cnoremap <esc> <c-c><esc>
 
 # Insert mode
 inoremap <c-bs> <c-w>
-inoremap <c-h> <left>
-inoremap <c-l> <right>
+inoremap <c-b> <left>
+inoremap <c-f> <right>
+inoremap <m-b> <c-left>
+inoremap <m-f> <c-right>
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 inoremap <c-u> <c-g>u<c-u>
@@ -478,13 +506,23 @@ inoremap <s-Left> <Esc>v<c-g><Left>
 inoremap <s-Right> <Esc>v<c-g><Right>
 inoremap <c-s> <Esc>:w<cr>a
 
+# QuickFix
+nnoremap <silent> ]q :cnext<CR>
+nnoremap <silent> ]Q :clast<CR>
+nnoremap <silent> [q :cprevious<CR>
+nnoremap <silent> [Q :cfirst<CR>
+nnoremap <silent> ]w :lnext<CR>
+nnoremap <silent> ]W :llast<CR>
+nnoremap <silent> [w :lprevious<CR>
+nnoremap <silent> [W :lfirst<CR>
+
 # Buffer navigation
 nnoremap <bs> <c-^>
 nnoremap <space>bn :bn<cr>
 nnoremap <space>bp :bp<cr>
 nnoremap <space>bd :bd<cr>
 nnoremap <space>bw :bw<cr>
-nnoremap <space>bo :%bd\|e#\|bd#\|'"<cr>
+nnoremap <silent><space>bo :call g:WipeHiddenBuffers()<cr>
 nnoremap <space>, :buffers<cr>:buffer<Space>
 
 # Split navigation
@@ -509,6 +547,7 @@ nnoremap <space>fh :History<cr>
 nnoremap <space>f: :History:<cr>
 nnoremap <space>f/ :History/<cr>
 nnoremap <space>fb :Buffers<cr>
+nnoremap <space>fw :Windows<cr>
 nnoremap <space>fm :Marks<cr>
 nnoremap <space>fl :Lines<cr>
 nnoremap <space>fc :Colors<cr>
@@ -523,18 +562,16 @@ nnoremap <space>Fl :Lines!<cr>
 if has("gui_running")
     if has("win32")
         nnoremap <silent><m-cr> <Esc>:call libcallnr("vimtweak.dll", "ToggleFullScreen", 0)<cr>
-        nnoremap <silent><space>ta :if Alpha == 0 \| \| let Alpha = 1 \| call libcallnr("vimtweak.dll", "SetAlpha", 200) \| else \| let Alpha = 0 \| call libcallnr("vimtweak.dll", "SetAlpha", 255) \| endif<cr>
-        nnoremap <silent><space>tT :if TopMost == 0 \| \| let TopMost = 1 \| call libcallnr("vimtweak.dll", "EnableTopMost", 1) \| else \| let TopMost = 0 \| call libcallnr("vimtweak.dll", "EnableTopMost", 0) \| endif<cr>:echo "TopMost Toggled"<cr>
     endif
     nnoremap <silent><space>tb :if ScrollBar == 0 \| let ScrollBar = 1 \| set go+=r \| else \| let ScrollBar = 0 \| set go-=r \| endif<cr>
     nnoremap <silent><space>tg :if &guioptions == 'i' \| set go=imTrL \| else \| set go=i \| endif<cr>
 endif
-nnoremap <silent><space><space> :call ToggleNetrw()<cr>
 nnoremap <silent><c-q> :if empty(filter(getwininfo(), 'v:val.quickfix')) \| copen \| else \| cclose \| endif<cr>
-nnoremap <silent><space>tw :set invwrap wrap?<cr>
-nnoremap <silent><space>tl :set invlist list?<cr>
-nnoremap <silent><space>ti :call ToggleIndentGuides()<cr>
-nnoremap <silent><space>tn :if &number \| setlocal nonumber \| else \| setlocal number \| endif<cr>
+nnoremap <silent><space><space> :call g:ToggleNetrw()<cr>
+nnoremap <silent><space>ti :call g:ToggleIndentGuides()<cr>
+nnoremap <silent><space>tw :set wrap! wrap?<cr>
+nnoremap <silent><space>tl :set list! list?<cr>
+nnoremap <silent><space>tn :set number! number?<cr>
 nnoremap <silent><space>tt :if &showtabline != 0 \| set showtabline=0 \| else \| set showtabline=2 \| endif<cr>
 nnoremap <silent><space>ts :if &laststatus == 2 \| set laststatus=0 \| else \| set laststatus=2 \| endif<cr>
 nnoremap <silent><space>tf :if &foldcolumn == 1 \| setlocal foldcolumn=0 \| else \| setlocal foldcolumn=1 \| endif<cr>
