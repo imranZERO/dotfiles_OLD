@@ -5,14 +5,15 @@ vim9script
 # O------------------------------------------------------------------O
 set nocompatible encoding=utf-8 hidden confirm
 \ path+=** noswapfile nobackup fileformats=unix,dos
-\ magic secure belloff=all hlsearch incsearch
+\ titlestring=%{resolve(expand("%:p"))}\ »\ Vim
+\ history=1024 magic secure hlsearch incsearch
 \ exrc wildmenu showcmd nomodeline noshowmode
 \ ignorecase smartcase autoindent smartindent
 \ autoread lazyredraw ttyfast splitbelow splitright
 \ notimeout ttimeout ttimeoutlen=200 nostartofline
 \ mouse=a laststatus=2 nrformats-=octal linespace=0
-\ noruler breakindent showbreak=» foldcolumn=1
 \ tabstop=4 shiftwidth=4 softtabstop=4 expandtab
+\ breakindent showbreak=» foldcolumn=1 belloff=all
 \ scrolloff=6 sidescrolloff=12 sidescroll=1 synmaxcol=250
 \ nonumber numberwidth=5 fillchars=vert:\│, termguicolors
 \ backspace=indent,eol,start shortmess+=I shortmess-=S
@@ -45,7 +46,6 @@ packadd multiterm.vim               # chengzeyi/multiterm.vim
 packadd vim-polyglot                # sheerun/vim-polyglot
     command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
 packadd vim-commentary              # tpope/vim-commentary
-packadd goyo.vim                    # junegunn/goyo.vim
 packadd awesome-vim-colorschemes    # rafi/awesome-vim-colorschemes
 
 # Disable unwanted builtin plugins
@@ -60,12 +60,12 @@ filetype indent plugin on | syntax enable syntax on
 # |  Gui                                                             |
 # O------------------------------------------------------------------O
 if has("gui_running")
-    # set guifont=consolas:h11
+    # set guifont=Fixedsys:h11
+    # set guifont=Fira_Mono:h11
     # set guifont=terminus:h14:b
-    set guifont=Fira\ Mono:h11
-    # set guifont=Victor\ Mono:h11
-    # set guifont=jetbrains_mono_nl_regular:h11
-    # set guifont=Iosevka\ ss14:h12 | set linespace=-1
+    # set guifont=Victor_Mono:h11
+    set guifont=jetbrains_mono_nl_regular:h11
+    # set guifont=consolas:h11 | set linespace=-1
 
     set guioptions=i
     set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor,
@@ -80,10 +80,17 @@ endif
 
 if has("gui_running") && has("win32")
     set renderoptions=type:directx
+    autocmd GUIEnter * simalt ~x    # Start maximized
+
+    augroup CURSORLINE | autocmd!
+        autocmd WinEnter * set cursorline | autocmd WinLeave * set nocursorline
+        autocmd InsertEnter * set nocursorline | autocmd InsertLeave * set cursorline
+    augroup end
+
     # Gvim tweaks - gist.github.com/imranZERO/d4245f05fa3125e7575b33897d5339bb
     g:Alpha = 0
     command! SetAlpha if g:Alpha == 0 | g:Alpha = 1
-        \| libcallnr("vimtweak.dll", "SetAlpha", 220) | else
+        \| libcallnr("vimtweak.dll", "SetAlpha", 230) | else
         \| g:Alpha = 0 | libcallnr("vimtweak.dll", "SetAlpha", 255) | endif
     g:TopMost = 0
     command! SetTopMost if g:TopMost == 0 | g:TopMost = 1
@@ -93,8 +100,35 @@ if has("gui_running") && has("win32")
     command! SetCaption if g:Caption == 0 | g:Caption = 1
         \| libcallnr("vimtweak.dll", "EnableCaption", 1) | else
         \| g:Caption = 0 | libcallnr("vimtweak.dll", "EnableCaption", 0) | endif
-    autocmd GUIEnter * simalt ~x    # Start maximized
 endif
+
+# O------------------------------------------------------------------O
+# |  Filetype Settings                                               |
+# O------------------------------------------------------------------O
+augroup FILETYPE_C | autocmd!
+    autocmd FileType c,cpp
+        \ setlocal commentstring=//\ %s
+        \| setlocal cinoptions+=(0
+        \| inoreabbrev /* /*  */<C-O>3h
+augroup END
+
+augroup FILETYPE_GO | autocmd!
+    autocmd FileType go setlocal noexpandtab
+augroup END
+
+def g:BuildFile()
+    exec "w"
+    set cmdheight=3
+    if &filetype == 'python' | exec "vert term python %"
+    elseif &filetype == 'lua'| exec "vert term lua %"
+    elseif &filetype == 'lisp' | exec "vert term sbcl --script %"
+    elseif &filetype == 'make' | exec "Make!" # ! prevents jumping to location of first error
+    elseif &filetype == 'c'| exec "Make!"
+    elseif &filetype == 'cpp' | exec "Make!"
+    elseif &filetype == 'go' | exec "Make!"
+    endif
+    set cmdheight=1
+enddef
 
 # O------------------------------------------------------------------O
 # |  Misc.                                                           |
@@ -179,6 +213,28 @@ function g:ToggleMaximizeSplit(zoom)
     endif
 endfunction
 
+g:distractionFree = 0
+def g:DistractionFree()
+    if (g:distractionFree == 0)
+        g:distractionFree = 1
+        set laststatus=0
+        set showtabline=0
+        set fillchars=vert:\ ,
+        highlight! EndOfBuffer guifg=bg
+        lefta vnew | vertical resize 34
+        wincmd w
+        vnew | vertical resize 34
+        wincmd h
+    else
+        g:distractionFree = 0
+        set laststatus=2
+        set showtabline=1
+        set fillchars=vert:\│,
+        highlight! link EndOfBuffer Comment
+        wincmd h | q | wincmd l | q
+    endif
+enddef
+
 # Alternate C/C++ source/header
 command! A call g:A('e')
 command! AV call g:A('botright vertical split')
@@ -203,36 +259,35 @@ function g:A(cmd)
     endfor
 endfunction
 
-def g:BuildFile()
-    exec "w"
-    set cmdheight=3
-    if &filetype == 'python' | exec "vert term python %"
-    elseif &filetype == 'lua'| exec "vert term lua %"
-    elseif &filetype == 'lisp' | exec "vert term sbcl --script %"
-    elseif &filetype == 'make' | exec "Make"
-    elseif &filetype == 'c'| exec "Make"
-    elseif &filetype == 'cpp' | exec "Make"
-    elseif &filetype == 'go' | exec "Make"
-    endif
-    set cmdheight=1
-enddef
-
 # Colors
 g:gruvbox_italic = '0' | g:gruvbox_invert_selection = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
-colorscheme gruvbox | set background=dark
-# colorscheme cake16 | set background=light
+colorscheme gruvbox | &bg = 'dark'
+
+g:LoopColorsInt = 0
+def g:LoopColorSchemes()
+    if g:LoopColorsInt == 0
+        colorscheme cake16 | &bg = 'light'
+    elseif g:LoopColorsInt == 1
+        colorscheme gruvbox | &bg = 'dark'
+    elseif g:LoopColorsInt == 2
+        colorscheme hybrid | &bg = 'dark'
+    endif
+    g:LoopColorsInt = g:LoopColorsInt + 1
+    g:LoopColorsInt = g:LoopColorsInt % 3
+enddef
 
 def g:ColorConfig()
     highlight! link foldcolumn nontext
     highlight! link vertsplit nontext
+    autocmd TerminalWinOpen * setlocal statusline=%#StatusLine#\ %.60f
     if &bg == "light"
         highlight Cursor guifg=NONE guibg=#000000 gui=NONE
         highlight Terminal guifg=#3C3836 ctermfg=249 guibg=#EBDBB2 ctermbg=0
         g:terminal_ansi_colors = [
             \ "#774f38", "#b95942", "#308444", "#996e1f", "#50707e", "#aa56b2", "#308090", "#ede4d4",
-            \ "#878787", '#f10000', '#82a3b3', '#c79747', '#678797', '#afafaf', '#afafaf', '#f7efdf',]
+            \ "#878787", '#f10000', '#82a3b3', '#B95942', '#678797', '#afafaf', '#afafaf', '#f7efdf',]
     else
         highlight Cursor guifg=NONE guibg=#00F700 gui=NONE cterm=NONE
         highlight Terminal guifg=#DAB98F ctermfg=249 guibg=#161616 ctermbg=0
@@ -300,28 +355,27 @@ g:cmode = {
     \ "\<C-V>": "V·BLOCK", "s": "SELECT", "S": "S·LINE", "^S": "S·BLOCK", "i": "INSERT",
     \ "R": "REPLACE", "Rv": "V·REPLACE", "c": "COMMAND", "cv": "VIM EX", "ce": "Ex",
     \ "r": "PROMPT", "rm": "MORE", "r?": "CONFIRM", "!": "SHELL", "t": "TERMINAL" }
-function g:Statusline()
+def g:Statusline()
     set statusline=
-    set statusline+=\ %{g:cmode[mode()]}\                       " Current mode
-    set statusline+=%<                                          " Truncate
-    set statusline+=%#StatusLineNC#
-    " set statusline+=\ [%n]                                      " Buffer number
-    " set statusline+=\ %t                                        " File name
-    " set statusline+=\ %f                                        " File path relative
-    set statusline+=\ %.40F                                     " File path full
-    " set statusline+=\ [%{g:FileSize()}]                         " File size
-    " set statusline+=\ [%02p%%]                                  " Percentage
-    set statusline+=\ %r%m%h                                    " Readonly,modified,help
-    set statusline+=%=                                          " Right align
-    let &statusline..="\ %{FugitiveHead()}\ "                   " Git branch
-    set statusline+=%*                                          " Default highlight
-    let &statusline..="%{exists('g:asyncdo')?'[running]':''}"   " AsyncDo status
-    " set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\ \|         " File encoding
-    set statusline+=\ %{&fileformat}\ \\|                       " File format
-    set statusline+=\ %{strlen(&ft)?&ft:'none'}\ \\|            " Filetype
-    set statusline+=\ %02c:%3l/%L\                              " Column:line/total
-    autocmd TerminalWinOpen * setlocal statusline=%#StatusLine#\ %.60f
-endfunction
+    set statusline+=\ %{g:cmode[mode()]}\                       # Current mode
+    set statusline+=%<                                          # Truncate
+    set statusline+=%#StatusLineNC#                             # Highlight
+    # set statusline+=\ [%n]                                      # Buffer number
+    # set statusline+=\ %t                                        # File name
+    # set statusline+=\ %f                                        # File path relative
+    set statusline+=\ %.40F                                     # File path full
+    # set statusline+=\ [%{g:FileSize()}]                         # File size
+    # set statusline+=\ [%02p%%]                                  # Percentage
+    set statusline+=\ %r%m%h                                    # Readonly,modified,help
+    set statusline+=%=                                          # Right align
+    set statusline+=\ %{FugitiveHead()}\                        # Git branch
+    set statusline+=%*                                          # Default highlight
+    set statusline+=%{exists('g:asyncdo')?'[running]':''}       # AsyncDo status
+    # set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\ \|         # File encoding
+    set statusline+=\ %{&fileformat}\ \\|                       # File format
+    set statusline+=\ %{strlen(&ft)?&ft:'none'}\ \\|            # Filetype
+    set statusline+=\ %02c:%3l/%L\                              # Column:line/total
+enddef
 g:Statusline()
 
 # Automatically resize splits on window resize
@@ -361,11 +415,6 @@ def g:WipeHiddenBuffers()
     endif
 enddef
 
-augroup CURSORLINE | autocmd!
-    autocmd WinEnter * set cursorline | autocmd WinLeave * set nocursorline
-    autocmd InsertEnter * set nocursorline | autocmd InsertLeave * set cursorline
-augroup end
-
 # Set listchars visible in Visual Mode
 # autocmd ModeChanged *:[vV\x16]* set list
 # autocmd ModeChanged [vV\x16]*:* set nolist
@@ -383,6 +432,9 @@ autocmd BufWritePre * {
 # |  Mappings                                                        |
 # O------------------------------------------------------------------O
 inoremap <m-i> <Esc>
+
+nnoremap <F1> <Esc>
+inoremap <F1> <Esc>
 
 nnoremap <m-j> 5j
 nnoremap <m-k> 5k
@@ -432,7 +484,8 @@ tnoremap <s-insert> <c-w>"+
 tnoremap <c-v> <c-w>"+
 
 # Search & Replace ('g' global, 'c' confirm)
-nnoremap <space>s :%s//gc<Left><Left><Left>
+nnoremap <space>S :%s//gc<Left><Left><Left>
+nnoremap <Space>s :%s/\<<C-r>=expand("<cword>")<CR>\>/
 
 # Delete all occurences of selected text
 xnoremap <space>d y:%s/<c-r>"//gc<cr>
@@ -473,7 +526,7 @@ inoremap <expr> ) getline('.')[col('.') - 1] == ")" ? "\<Right>" : ")"
 inoremap <expr> } getline('.')[col('.') - 1] == "}" ? "\<Right>" : "}"
 
 # Terminal mode
-if has('win32') && (&shell =~# '\<cmd\.exe$')
+if has("win32") && (&shell =~# '\<cmd\.exe$')
     tnoremap <silent><C-p> <up>
     tnoremap <silent><C-n> <down>
     tnoremap <silent><C-b> <left>
@@ -491,12 +544,14 @@ cnoremap <c-e> <end>
 cnoremap <c-a> <home>
 cnoremap <esc> <c-c><esc>
 
-# Insert mode
+# Insert mode (Emacs-ish)
 inoremap <c-bs> <c-w>
 inoremap <c-b> <left>
 inoremap <c-f> <right>
 inoremap <m-b> <c-left>
 inoremap <m-f> <c-right>
+inoremap <m-n> <c-o>j
+inoremap <m-p> <c-o>k
 inoremap <c-a> <home>
 inoremap <c-e> <end>
 inoremap <c-u> <c-g>u<c-u>
@@ -505,6 +560,7 @@ inoremap <silent><c-Down> <c-o>:<c-u>execute "keepjumps norm! " . v:count1 . "}"
 inoremap <s-Left> <Esc>v<c-g><Left>
 inoremap <s-Right> <Esc>v<c-g><Right>
 inoremap <c-s> <Esc>:w<cr>a
+inoremap <c-l> <c-o><c-l>
 
 # QuickFix
 nnoremap <silent> ]q :cnext<CR>
@@ -576,6 +632,7 @@ nnoremap <silent><space>tt :if &showtabline != 0 \| set showtabline=0 \| else \|
 nnoremap <silent><space>ts :if &laststatus == 2 \| set laststatus=0 \| else \| set laststatus=2 \| endif<cr>
 nnoremap <silent><space>tf :if &foldcolumn == 1 \| setlocal foldcolumn=0 \| else \| setlocal foldcolumn=1 \| endif<cr>
 nnoremap <silent><space>tc :let &bg=(&bg=="dark"?"light":"dark")<cr>
-nnoremap <silent><space>tz :Goyo<cr>
+nnoremap <silent><space>tz :call DistractionFree()<CR>
+nnoremap <silent><space>cc :call g:LoopColorSchemes()<CR>
 nmap <silent><c-z> <Plug>(Multiterm)
 tmap <silent><c-z> <Plug>(Multiterm)
