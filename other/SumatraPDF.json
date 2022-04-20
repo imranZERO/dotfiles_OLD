@@ -13,7 +13,10 @@ FixedPageUI [
 	SelectionColor = #f5fc0c
 	WindowMargin = 2 4 2 4
 	PageSpacing = 4 4
+	GradientColors = #1d2021
 	HideScrollbars = false
+	EbookFontName = default
+	EbookFontSize = 10
 ]
 EbookUI [
 	FontName = Georgia
@@ -49,6 +52,10 @@ ForwardSearch [
 ]
 Annotations [
 	HighlightColor = #ffff00
+	UnderlineColor = #00ff00
+	TextIconColor = #ffff00
+	TextIconType = 
+	DefaultAuthor = 
 ]
 CustomScreenDPI = 0
 
@@ -63,7 +70,7 @@ EnableTeXEnhancements = false
 DefaultDisplayMode = continuous
 DefaultZoom = fit page
 WindowState = 2
-WindowPos = 315 -20 697 738
+WindowPos = -3 -12 697 738
 ShowToc = true
 SidebarDx = 333
 TocDy = 0
@@ -76,6 +83,9 @@ FileStates [
 SessionData [
 ]
 TimeOfLastUpdateCheck = 0 0
-OpenCountWeek = 580
+OpenCountWeek = 589
 
 # Settings after this line have not been recognized by the current version
+SmoothScroll = false
+SelectionHandlers [
+]

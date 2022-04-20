@@ -19,5 +19,6 @@ $GITCMD https://github.com/lilydjwg/colorizer.git
 $GITCMD https://github.com/junegunn/goyo.vim.git
 
 $GITCMD https://github.com/rafi/awesome-vim-colorschemes.git
+$GITCMD https://gitlab.com/protesilaos/tempus-themes.git
 $GITCMD https://github.com/mvanderkamp/cocoa.vim.git
 $GITCMD https://github.com/zefei/cake16.git

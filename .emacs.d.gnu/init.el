@@ -1,7 +1,7 @@
 (require 'package)
 (add-to-list 'package-archives
             '("melpa" . "https://melpa.org/packages/"))
-; (package-refresh-contents)
+; (package-refresh-contents)  ; comment/uncomment this
 (package-initialize)
 
 (add-to-list 'load-path "~/.emacs.d/plug")
@@ -55,7 +55,7 @@
 (global-set-key (kbd "M-k") (kbd "5k"))
 
 ;; Increase/Decrease font size
-(global-set-key (kbd "<f12>") 'text-scale-increase)  
+(global-set-key (kbd "<f12>") 'text-scale-increase)
 (global-set-key (kbd "<S-f12>") 'text-scale-decrease)
 
 (unless (package-installed-p 'use-package)

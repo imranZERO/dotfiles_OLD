@@ -4,10 +4,6 @@
     "actions": 
     [
         {
-            "command": "paste",
-            "keys": "ctrl+v"
-        },
-        {
             "command": 
             {
                 "action": "copy",
@@ -24,8 +20,20 @@
             "keys": "alt+s"
         },
         {
-            "command": "find",
-            "keys": "ctrl+shift+f"
+            "command": "paste",
+            "keys": "ctrl+v"
+        },
+        {
+            "command": 
+            {
+                "action": "moveFocus",
+                "direction": "right"
+            },
+            "keys": "alt+l"
+        },
+        {
+            "command": "closePane",
+            "keys": "ctrl+shift+w"
         },
         {
             "command": "unbound",
@@ -120,16 +128,8 @@
             "keys": "ctrl+shift+q"
         },
         {
-            "command": "closePane",
-            "keys": "ctrl+shift+w"
-        },
-        {
-            "command": 
-            {
-                "action": "moveFocus",
-                "direction": "right"
-            },
-            "keys": "alt+l"
+            "command": "find",
+            "keys": "ctrl+shift+f"
         },
         {
             "command": 
@@ -141,17 +141,17 @@
         {
             "command": 
             {
-                "action": "splitPane",
-                "split": "down"
+                "action": "commandPalette"
             },
-            "keys": "alt+shift+s"
+            "keys": "ctrl+shift+p"
         },
         {
             "command": 
             {
-                "action": "commandPalette"
+                "action": "splitPane",
+                "split": "down"
             },
-            "keys": "ctrl+shift+p"
+            "keys": "alt+shift+s"
         },
         {
             "command": 
@@ -204,7 +204,7 @@
     "alwaysShowTabs": true,
     "copyFormatting": "none",
     "copyOnSelect": false,
-    "defaultProfile": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+    "defaultProfile": "{ff4fc5b7-5fae-457d-9cf7-8c9a53513560}",
     "experimental.rendering.software": false,
     "launchMode": "maximized",
     "profiles": 
@@ -226,27 +226,6 @@
                 "padding": "0"
             },
             {
-                "antialiasingMode": "grayscale",
-                "colorScheme": "Gruvbox Dark",
-                "commandline": "cmd /k \"%HOME%\\cmd-init.bat\"",
-                "cursorShape": "filledBox",
-                "elevate": true,
-                "experimental.retroTerminalEffect": false,
-                "font": 
-                {
-                    "face": "Consolas",
-                    "size": 11,
-                    "weight": "normal"
-                },
-                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
-                "hidden": false,
-                "icon": null,
-                "name": "Clink",
-                "padding": "0",
-                "scrollbarState": "visible",
-                "useAcrylic": false
-            },
-            {
                 "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
                 "hidden": false,
                 "name": "Azure Cloud Shell",
@@ -258,7 +237,7 @@
                 "cursorShape": "filledBox",
                 "font": 
                 {
-                    "face": "JetBrains Mono",
+                    "face": "JetBrains Mono NL",
                     "size": 10
                 },
                 "guid": "{1df0f8ec-a145-573d-b389-1569c2622ebb}",
@@ -267,10 +246,27 @@
                 "padding": "0"
             },
             {
-                "guid": "{3724aa27-0ea8-4de0-81d7-4d04d84b06e6}",
+                "altGrAliasing": true,
+                "antialiasingMode": "grayscale",
+                "closeOnExit": "graceful",
+                "colorScheme": "Gruvbox Dark",
+                "commandline": "%SystemRoot%\\System32\\cmd.exe",
+                "cursorShape": "vintage",
+                "elevate": true,
+                "font": 
+                {
+                    "face": "Consolas",
+                    "size": 12
+                },
+                "guid": "{ff4fc5b7-5fae-457d-9cf7-8c9a53513560}",
                 "hidden": false,
+                "historySize": 9001,
+                "icon": "ms-appx:///ProfileIcons/{0caa0dad-35be-5f56-a8ff-afceeeaa6101}.png",
                 "name": "Command Prompt",
-                "startingDirectory": "%USERPROFILE%"
+                "padding": "0",
+                "snapOnInput": true,
+                "startingDirectory": "%USERPROFILE%",
+                "useAcrylic": false
             }
         ]
     },
