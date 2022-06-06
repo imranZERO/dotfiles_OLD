@@ -54,8 +54,8 @@ Annotations [
 	HighlightColor = #ffff00
 	UnderlineColor = #00ff00
 	TextIconColor = #ffff00
-	TextIconType = 
-	DefaultAuthor = 
+	TextIconType =
+	DefaultAuthor =
 ]
 CustomScreenDPI = 0
 
@@ -70,7 +70,7 @@ EnableTeXEnhancements = false
 DefaultDisplayMode = continuous
 DefaultZoom = fit page
 WindowState = 2
-WindowPos = -3 -12 697 738
+WindowPos = 565 -8 697 738
 ShowToc = true
 SidebarDx = 333
 TocDy = 0
@@ -83,7 +83,7 @@ FileStates [
 SessionData [
 ]
 TimeOfLastUpdateCheck = 0 0
-OpenCountWeek = 589
+OpenCountWeek = 591
 
 # Settings after this line have not been recognized by the current version
 SmoothScroll = false

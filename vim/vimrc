@@ -13,13 +13,13 @@ set nocompatible encoding=utf-8 hidden confirm
 \ mouse=a laststatus=2 nrformats-=octal linespace=0
 \ tabstop=4 shiftwidth=4 softtabstop=4 expandtab
 \ breakindent showbreak=» foldcolumn=0 belloff=all
-\ scrolloff=6 sidescrolloff=12 sidescroll=1 synmaxcol=250
+\ scrolloff=6 sidescrolloff=12 sidescroll=1 synmaxcol=400
 \ nonumber numberwidth=5 fillchars=vert:\│, termguicolors
 \ backspace=indent,eol,start shortmess+=I shortmess-=S
 \ listchars+=tab:\│\ ,space:·,precedes:<,extends:>,eol:¬
 \ virtualedit=block cursorlineopt=screenline commentstring=#\ %s
-\ wildignore=*.o,*.exe,*.pyc,*.dll,*.png,*.jpg,*.gif,*.pdf
-\ wildmode=full wildoptions=pum,tagfile
+\ wildignore=*.o,*.pyc,*.dll,*.png,*.jpg,*.gif,*.pdf
+\ wildmode=full wildoptions=fuzzy,pum,tagfile
 
 # O------------------------------------------------------------------O
 # |  Plugins (with VIM8 plugin manager)                              |
@@ -46,11 +46,16 @@ packadd vim-polyglot                # sheerun/vim-polyglot
     command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
 packadd vim-commentary              # tpope/vim-commentary
 
-# Disable unwanted builtin plugins
-g:loaded_getscriptPlugin = true
-g:loaded_logiPat = true
-g:loaded_vimballPlugin = true | g:loaded_vimball = true
-# g:loaded_netrwPlugin = true | g:loaded_netrw = true
+# Disable unwanted built-in plugins
+g:loaded_2html_plugin = 1
+g:loaded_getscriptPlugin = 1
+g:loaded_logipat = 1
+g:loaded_rrhelper = 1
+g:loaded_gzip = 1
+g:loaded_tarPlugin = 1 | g:loaded_tar = 1
+g:loaded_zipPlugin = 1 | g:loaded_zip = 1
+g:loaded_vimballPlugin = 1 | g:loaded_vimball = true
+# g:loaded_netrwPlugin = 1 | g:loaded_netrw = true
 
 filetype indent plugin on | syntax enable syntax on
 
@@ -58,12 +63,18 @@ filetype indent plugin on | syntax enable syntax on
 # |  Gui                                                             |
 # O------------------------------------------------------------------O
 if has("gui_running")
-    # set guifont=Fixedsys:h11
-    # set guifont=terminus:h14:b
-    # set guifont=Victor_Mono:h11
-    set guifont=Fira_Mono:h11 | set linespace=-1
-    # set guifont=jetbrains_mono_nl_regular:h11
-    # set guifont=consolas:h11 | set linespace=-1
+    def g:SetFonts()
+        if &bg == 'light'
+            set guifont=Victor_Mono:h11:b
+        else
+            # set guifont=Consolas:h11
+            # set guifont=Terminus:h11
+            set guifont=Victor_Mono:h11
+            # set guifont=fira_Mono:h11 | set linespace=-1
+            # set guifont=jetbrains_mono_nl_regular:h11
+        endif
+    enddef
+    g:SetFonts() | autocmd ColorScheme * g:SetFonts()
 
     set guioptions=i
     set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor,
@@ -116,7 +127,7 @@ augroup END
 
 def g:BuildFile()
     exec "w"
-    set cmdheight=3
+    set cmdheight=3 # To avoid 'Press ENTER to continue'
     if &filetype == 'python' | exec "vert term python %"
     elseif &filetype == 'lua'| exec "vert term lua %"
     elseif &filetype == 'lisp' | exec "vert term sbcl --script %"
@@ -134,7 +145,8 @@ enddef
 function Intro()
     if argc() || line2byte('$') != -1 || v:progname !~? '^[-gmnq]\=vim\=x\=\%[\.exe]$' || &insertmode
     return | endif | enew | setlocal bh=wipe bt=nofile nobl nocuc nocul nolist nonu noswf
-    call append(" ", "Unfortunately, there's a radio connected to my brain.")
+    " call append(" ", "Unfortunately, there's a radio connected to my brain.")
+    call append(" ", "Hello, Sailor!")
     setlocal nomodifiable nomodified
     nnoremap <silent><buffer>e :enew<CR>
     nnoremap <silent><buffer>i :enew <bar> startinsert<CR>
@@ -255,7 +267,7 @@ endfunction
 g:gruvbox_italic = '0' | g:gruvbox_invert_selection = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
-colorscheme cake16
+colorscheme gruvbox
 
 g:LoopColorsInt = 0
 def g:LoopColorSchemes()
@@ -264,7 +276,7 @@ def g:LoopColorSchemes()
     elseif g:LoopColorsInt == 1
         colorscheme gruvbox | &bg = 'dark'
     elseif g:LoopColorsInt == 2
-        colorscheme hybrid | &bg = 'dark'
+        colorscheme leaf | &bg = 'dark'
     endif
     g:LoopColorsInt = g:LoopColorsInt + 1
     g:LoopColorsInt = g:LoopColorsInt % 3
@@ -542,8 +554,6 @@ inoremap <expr> ) getline('.')[col('.') - 1] == ")" ? "\<Right>" : ")"
 inoremap <expr> } getline('.')[col('.') - 1] == "}" ? "\<Right>" : "}"
 
 # Terminal mode
-nnoremap <silent><space><cr> :vert term<cr>clink inject<cr><c-l>
-nnoremap <silent><space><c-cr> :term<cr>clink inject<cr><c-l>
 if has("win32") && (&shell =~# '\<cmd\.exe$')
     tnoremap <silent><C-p> <up>
     tnoremap <silent><C-n> <down>
@@ -552,6 +562,12 @@ if has("win32") && (&shell =~# '\<cmd\.exe$')
     tnoremap <silent><C-e> <end>
     tnoremap <silent><C-a> <home>
     tnoremap <silent><C-u> <esc>
+    nnoremap <silent><space><cr> :vert term<cr>%HOME%\cmdrc.bat<cr>
+    nnoremap <silent><space><c-cr> :term<cr>%HOME%\cmdrc.bat<cr>
+    tnoremap <silent><F12> %HOME%\cmdrc.bat<cr>
+else
+    nnoremap <silent><space><cr> :vert term<cr>
+    nnoremap <silent><space><c-cr> :term<cr>
 endif
 
 # Command mode
