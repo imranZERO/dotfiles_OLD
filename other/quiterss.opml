@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+    <head>
+        <title>QuiteRSS</title>
+        <dateModified>Sat Jun 18 18:22:02 2022</dateModified>
+    </head>
+    <body>
+        <outline text="QuiteRSS" type="rss" htmlUrl="https://quiterss.org" xmlUrl="https://quiterss.org/en/rss.xml"/>
+        <outline text="Cheapskates Guide" type="rss" htmlUrl="https://cheapskatesguide.org/" xmlUrl="https://cheapskatesguide.org/cheapskates-guide-rss-feed.xml"/>
+        <outline text="Luke Smith" type="rss" htmlUrl="https://lukesmith.xyz/rss.xml" xmlUrl="https://lukesmith.xyz/rss.xml"/>
+        <outline text="It's FOSS" type="rss" htmlUrl="https://itsfoss.com" xmlUrl="https://itsfoss.com/feed/"/>
+        <outline text="Material.io - Material Design" type="rss" htmlUrl="https://material.io" xmlUrl="https://material.io/feed.xml"/>
+        <outline text="Rodrigo's Stuff" type="rss" htmlUrl="https://www.copetti.org/" xmlUrl="https://www.copetti.org/index.xml"/>
+        <outline text="Steve Losh" type="rss" htmlUrl="https://stevelosh.com/" xmlUrl="https://stevelosh.com/rss.xml"/>
+        <outline text="Posts on Dear World," type="rss" htmlUrl="https://imgeself.github.io/posts/" xmlUrl="https://imgeself.github.io/posts/index.xml"/>
+        <outline text="fabiensanglard.net" type="rss" htmlUrl="https://fabiensanglard.net" xmlUrl="https://fabiensanglard.net/rss.xml"/>
+    </body>
+</opml>

@@ -41,6 +41,7 @@ packadd rainbow_parentheses.vim     # junegunn/rainbow_parentheses
 packadd vim-fugitive                # tpope/vim-fugitive
 packadd vim-surround                # tpope/vim-surround
 packadd vim-repeat                  # tpope/vim-repeat
+packadd vim-sneak                   # justinmk/vim-sneak
 packadd multiterm.vim               # chengzeyi/multiterm.vim
 packadd vim-polyglot                # sheerun/vim-polyglot
     command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
@@ -64,21 +65,21 @@ filetype indent plugin on | syntax enable syntax on
 # O------------------------------------------------------------------O
 if has("gui_running")
     def g:SetFonts()
+        set guifont=Consolas:h11 # Default
         if &bg == 'light'
-            set guifont=Victor_Mono:h11:b
+            # set guifont=Victor_Mono:h11:b | set linespace=1
+            set guifont=jetbrains_mono_nl_regular:h11
         else
-            # set guifont=Consolas:h11
             # set guifont=Terminus:h11
-            set guifont=Victor_Mono:h11
-            # set guifont=fira_Mono:h11 | set linespace=-1
-            # set guifont=jetbrains_mono_nl_regular:h11
+            # set guifont=fira_Mono:h11
+            set guifont=jetbrains_mono_nl_regular:h11
         endif
     enddef
     g:SetFonts() | autocmd ColorScheme * g:SetFonts()
 
     set guioptions=i
-    set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor,
-                \i-ci:hor10-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
+    set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor
+    set guicursor=i-ci:hor10-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
 
     g:ScrollBar = 0
 
@@ -124,6 +125,30 @@ augroup END
 augroup FILETYPE_GO | autocmd!
     autocmd FileType go setlocal noexpandtab
 augroup END
+
+# Alternate C/C++ source/header
+command! A call g:A('e')
+command! AV call g:A('botright vertical split')
+function g:A(cmd)
+    let name = expand('%:r')
+    let ext = tolower(expand('%:e'))
+    let sources = ['c', 'cc', 'cpp', 'cxx']
+    let headers = ['h', 'hh', 'hpp', 'hxx']
+    for pair in [[sources, headers], [headers, sources]]
+        let [set1, set2] = pair
+        if index(set1, ext) >= 0
+            for h in set2
+                let aname = name..'.'..h
+                for a in [aname, toupper(aname)]
+                    if filereadable(a)
+                        execute a:cmd a
+                        return
+                    end
+                endfor
+            endfor
+        endif
+    endfor
+endfunction
 
 def g:BuildFile()
     exec "w"
@@ -239,35 +264,18 @@ def g:DistractionFree()
     endif
 enddef
 
-# Alternate C/C++ source/header
-command! A call g:A('e')
-command! AV call g:A('botright vertical split')
-function g:A(cmd)
-    let name = expand('%:r')
-    let ext = tolower(expand('%:e'))
-    let sources = ['c', 'cc', 'cpp', 'cxx']
-    let headers = ['h', 'hh', 'hpp', 'hxx']
-    for pair in [[sources, headers], [headers, sources]]
-        let [set1, set2] = pair
-        if index(set1, ext) >= 0
-            for h in set2
-                let aname = name..'.'..h
-                for a in [aname, toupper(aname)]
-                    if filereadable(a)
-                        execute a:cmd a
-                        return
-                    end
-                endfor
-            endfor
-        endif
-    endfor
+# Set tab width to n spaces
+command! -nargs=1 SetTab call SetTab(<f-args>)
+function SetTab(n)
+    let &l:tabstop=a:n | let &l:softtabstop=a:n | let &l:shiftwidth=a:n
+    set expandtab
 endfunction
 
 # Colors
 g:gruvbox_italic = '0' | g:gruvbox_invert_selection = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
-colorscheme gruvbox
+colorscheme cake16
 
 g:LoopColorsInt = 0
 def g:LoopColorSchemes()
@@ -349,8 +357,8 @@ function g:MyTabline()
         let s ..= fname .. ' ' | if bufmodified | let s ..= '+ ' | endif
     endfor
     let s..= '%*' .. '%=' .. '%#Normal#'
-    let s..= ' %{resolve(expand("%:p"))}%*' .. '%#Normal#' .. ' [%{&fileformat}]'
-    let s..= ' [%{strlen(&fenc)?&fenc:"none"}]' .. ' [%{g:FileSize()}]'
+    " let s..= ' %{resolve(expand("%:p"))}%*' .. '%#Normal#' ..
+    let s..=  ' [%{&fileformat}]' ..' [%{strlen(&fenc)?&fenc:"none"}]' .. ' [%{g:FileSize()}]'
     return s
 endfunction
 
@@ -443,12 +451,13 @@ enddef
 
 # Remove all trailing whitespace and newlines at end of file & reset cursor position
 var currPos = getpos(".")
-autocmd BufWritePre * {
+def DelWhitespace()
     currPos = getpos(".")
-    :%s/\s\+$//e
-    :%s/\n\+\%$//e
+    exec ':%s/\s\+$//e'
+    exec ':%s/\n\+\%$//e'
     cursor(currPos[1], currPos[2])
-}
+enddef
+autocmd BufWritePre * call DelWhitespace()
 
 # O------------------------------------------------------------------O
 # |  Mappings                                                        |
@@ -659,8 +668,8 @@ if has("gui_running")
     nnoremap <silent><space>tg :if &guioptions == 'i' \| set go=imTrL \| else \| set go=i \| endif<cr>
 endif
 nnoremap <silent><c-q> :if empty(filter(getwininfo(), 'v:val.quickfix')) \| copen \| else \| cclose \| endif<cr>
-nnoremap <silent><space><space> :call g:ToggleNetrw()<cr>
-nnoremap <silent><space>ti :call g:ToggleIndentGuides()<cr>
+nnoremap <silent><space><space> :call ToggleNetrw()<cr>
+nnoremap <silent><space>ti :call ToggleIndentGuides()<cr>
 nnoremap <silent><space>tw :set wrap! wrap?<cr>
 nnoremap <silent><space>tl :set list! list?<cr>
 nnoremap <silent><space>tn :set number! number?<cr>
@@ -669,6 +678,6 @@ nnoremap <silent><space>ts :if &laststatus == 2 \| set laststatus=0 \| else \| s
 nnoremap <silent><space>tf :if &foldcolumn == 1 \| setlocal foldcolumn=0 \| else \| setlocal foldcolumn=1 \| endif<cr>
 nnoremap <silent><space>tc :let &bg=(&bg=="dark"?"light":"dark")<cr>
 nnoremap <silent><space>tz :call DistractionFree()<CR>
-nnoremap <silent><space>cc :call g:LoopColorSchemes()<CR>
+nnoremap <silent><space>cc :call LoopColorSchemes()<CR>
 nmap <silent><c-z> <Plug>(Multiterm)
 tmap <silent><c-z> <Plug>(Multiterm)
