@@ -13,7 +13,13 @@ set prompt=$P$_$+$G$S
 clink.exe inject
 cls
 
+doskey ..=cd ..
+doskey ...=cd ..\..
 doskey v=vim $*
+doskey np=notepad $*
 doskey ls=ls -lah $*
 doskey gs=git status $*
 doskey gc=git clone --depth=1 $*
+doskey pyserve=python -m http.server $*
+doskey hss=hugo serve --noHTTPCache
+doskey liveserve=browser-sync start --server -f -w $*

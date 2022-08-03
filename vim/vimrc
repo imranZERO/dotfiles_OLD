@@ -11,15 +11,17 @@ set nocompatible encoding=utf-8 hidden confirm
 \ autoread lazyredraw ttyfast splitbelow splitright
 \ notimeout ttimeout ttimeoutlen=200 nostartofline
 \ mouse=a laststatus=2 nrformats-=octal linespace=0
-\ tabstop=4 shiftwidth=4 softtabstop=4 expandtab
+\ shiftwidth=0 tabstop=4 softtabstop=4 expandtab
 \ breakindent showbreak=» foldcolumn=0 belloff=all
 \ scrolloff=6 sidescrolloff=12 sidescroll=1 synmaxcol=400
 \ nonumber numberwidth=5 fillchars=vert:\│, termguicolors
 \ backspace=indent,eol,start shortmess+=I shortmess-=S
-\ listchars+=tab:\│\ ,space:·,precedes:<,extends:>,eol:¬
+\ listchars=tab:\·\ ,space:·,precedes:<,extends:>,eol:¬
 \ virtualedit=block cursorlineopt=screenline commentstring=#\ %s
 \ wildignore=*.o,*.pyc,*.dll,*.png,*.jpg,*.gif,*.pdf
-\ wildmode=full wildoptions=fuzzy,pum,tagfile
+\ wildmode=full wildoptions=fuzzy,pum,tagfile title titlestring=
+\ titlestring+=%t%(\ %M%)%(\ (%{expand(\"%:p:~:.:h\")}/)%)
+\ titlestring+=\ \|\ %{$USER}@%{hostname()}:%{substitute(getcwd(),$HOME,'~','')}
 
 # O------------------------------------------------------------------O
 # |  Plugins (with VIM8 plugin manager)                              |
@@ -32,7 +34,7 @@ packadd fzf | packadd fzf.vim       # junegunn/fzf
     \| autocmd BufLeave <buffer> set laststatus=2
 packadd asyncdo.vim                 # hauleth/asyncdo.vim
     command! -bang -nargs=* -complete=file Make
-    \ call asyncdo#run(<bang>0, &makeprg, <f-args>)
+    \ asyncdo#run(<bang>0, &makeprg, <f-args>)
 packadd vim-slime                   # jpalardy/vim-slime
     g:slime_target = "vimterminal"
 packadd rainbow_parentheses.vim     # junegunn/rainbow_parentheses
@@ -41,7 +43,6 @@ packadd rainbow_parentheses.vim     # junegunn/rainbow_parentheses
 packadd vim-fugitive                # tpope/vim-fugitive
 packadd vim-surround                # tpope/vim-surround
 packadd vim-repeat                  # tpope/vim-repeat
-packadd vim-sneak                   # justinmk/vim-sneak
 packadd multiterm.vim               # chengzeyi/multiterm.vim
 packadd vim-polyglot                # sheerun/vim-polyglot
     command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
@@ -61,21 +62,64 @@ g:loaded_vimballPlugin = 1 | g:loaded_vimball = true
 filetype indent plugin on | syntax enable syntax on
 
 # O------------------------------------------------------------------O
+# |  Filetype Settings                                               |
+# O------------------------------------------------------------------O
+augroup FILETYPE_C | autocmd!
+    autocmd FileType c,cpp
+        \ setlocal commentstring=//\ %s
+        \| setlocal cinoptions+=(0
+        \| inoreabbrev /* /*  */<C-O>3h
+augroup END
+
+augroup FILETYPE_GO | autocmd!
+    # packadd vim-go          # fatih/vim-go
+    autocmd FileType go setlocal noexpandtab
+augroup END
+
+# Alternate C/C++ source/header
+command! A call g:A('e')
+command! AV call g:A('botright vertical split')
+function g:A(cmd)
+    let name = expand('%:r')
+    let ext = tolower(expand('%:e'))
+    let sources = ['c', 'cc', 'cpp', 'cxx']
+    let headers = ['h', 'hh', 'hpp', 'hxx']
+    for pair in [[sources, headers], [headers, sources]]
+        let [set1, set2] = pair
+        if index(set1, ext) >= 0
+            for h in set2
+                let aname = name..'.'..h
+                for a in [aname, toupper(aname)]
+                    if filereadable(a)
+                        execute a:cmd a
+                        return
+                    end
+                endfor
+            endfor
+        endif
+    endfor
+endfunction
+
+def g:BuildFile()
+    exec "w"
+    if &filetype == 'python' | exec "vert term python %"
+    elseif &filetype == 'lua'| exec "vert term lua %"
+    elseif &filetype == 'lisp' | exec "vert term sbcl --script %"
+    elseif &filetype == 'make' | exec "Make!" # ! prevents jumping to location of first error
+    elseif &filetype == 'c'| exec "Make!"
+    elseif &filetype == 'cpp' | exec "Make!"
+    elseif &filetype == 'go' | exec "Make!"
+    endif
+enddef
+
+# O------------------------------------------------------------------O
 # |  Gui                                                             |
 # O------------------------------------------------------------------O
 if has("gui_running")
-    def g:SetFonts()
-        set guifont=Consolas:h11 # Default
-        if &bg == 'light'
-            # set guifont=Victor_Mono:h11:b | set linespace=1
-            set guifont=jetbrains_mono_nl_regular:h11
-        else
-            # set guifont=Terminus:h11
-            # set guifont=fira_Mono:h11
-            set guifont=jetbrains_mono_nl_regular:h11
-        endif
-    enddef
-    g:SetFonts() | autocmd ColorScheme * g:SetFonts()
+    # set guifont=Terminus:h11
+    # set guifont=fira_Mono:h11
+    # set guifont=Victor_Mono:h11:b | set linespace=1
+    set guifont=jetbrains_mono_nl_regular:h11
 
     set guioptions=i
     set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor
@@ -113,69 +157,17 @@ if has("gui_running") && has("win32")
 endif
 
 # O------------------------------------------------------------------O
-# |  Filetype Settings                                               |
-# O------------------------------------------------------------------O
-augroup FILETYPE_C | autocmd!
-    autocmd FileType c,cpp
-        \ setlocal commentstring=//\ %s
-        \| setlocal cinoptions+=(0
-        \| inoreabbrev /* /*  */<C-O>3h
-augroup END
-
-augroup FILETYPE_GO | autocmd!
-    autocmd FileType go setlocal noexpandtab
-augroup END
-
-# Alternate C/C++ source/header
-command! A call g:A('e')
-command! AV call g:A('botright vertical split')
-function g:A(cmd)
-    let name = expand('%:r')
-    let ext = tolower(expand('%:e'))
-    let sources = ['c', 'cc', 'cpp', 'cxx']
-    let headers = ['h', 'hh', 'hpp', 'hxx']
-    for pair in [[sources, headers], [headers, sources]]
-        let [set1, set2] = pair
-        if index(set1, ext) >= 0
-            for h in set2
-                let aname = name..'.'..h
-                for a in [aname, toupper(aname)]
-                    if filereadable(a)
-                        execute a:cmd a
-                        return
-                    end
-                endfor
-            endfor
-        endif
-    endfor
-endfunction
-
-def g:BuildFile()
-    exec "w"
-    set cmdheight=3 # To avoid 'Press ENTER to continue'
-    if &filetype == 'python' | exec "vert term python %"
-    elseif &filetype == 'lua'| exec "vert term lua %"
-    elseif &filetype == 'lisp' | exec "vert term sbcl --script %"
-    elseif &filetype == 'make' | exec "Make!" # ! prevents jumping to location of first error
-    elseif &filetype == 'c'| exec "Make!"
-    elseif &filetype == 'cpp' | exec "Make!"
-    elseif &filetype == 'go' | exec "Make!"
-    endif
-    set cmdheight=1
-enddef
-
-# O------------------------------------------------------------------O
 # |  Misc.                                                           |
 # O------------------------------------------------------------------O
-function Intro()
+def Intro()
     if argc() || line2byte('$') != -1 || v:progname !~? '^[-gmnq]\=vim\=x\=\%[\.exe]$' || &insertmode
     return | endif | enew | setlocal bh=wipe bt=nofile nobl nocuc nocul nolist nonu noswf
-    " call append(" ", "Unfortunately, there's a radio connected to my brain.")
-    call append(" ", "Hello, Sailor!")
+    # append(0, "Unfortunately, there's a radio connected to my brain.")
+    append(0, "Hello, Sailor!")
     setlocal nomodifiable nomodified
     nnoremap <silent><buffer>e :enew<CR>
     nnoremap <silent><buffer>i :enew <bar> startinsert<CR>
-endfunction
+enddef
 Intro()
 
 g:NetrwIsOpen = 0
@@ -211,32 +203,16 @@ g:netrw_liststyle = 3               # Tree-view
 g:netrw_sort_sequence = '[\/]$,*'   # Sort is affecting only: directories on the top, files below
 g:netrw_browse_split = 4            # Use the previous window to open file
 
-function g:ToggleIndentGuides()
-    if !exists('b:indentguides')
-        if !&expandtab && &tabstop == &shiftwidth
-            let b:indentguides = 'tabs'
-            let b:indentguides_listopt = &l:list
-            let b:indentguides_listcharsopt = &l:listchars
-            exe 'setl listchars' .. '+'[!&l:list] .. '=tab:˙\  list'
-        else
-            let b:indentguides = 'spaces'
-            let pos = range(1, &textwidth > 0 ? &textwidth : 80, &shiftwidth)
-            call map(pos, '"\\%" .. v:val .. "v"')
-            let pat = '\%(\_^ *\)\@<=\%(' .. join(pos, '\|') .. '\) '
-            let b:indentguides_match = matchadd('ColorColumn', pat)
-        endif
-    else
-        if b:indentguides == 'tabs'
-            let &l:list = b:indentguides_listopt
-            let &l:listchars = b:indentguides_listcharsopt
-            unlet b:indentguides_listopt b:indentguides_listcharsopt
-        else
-            call matchdelete(b:indentguides_match)
-            unlet b:indentguides_match
-        endif
-        unlet b:indentguides
+def g:IndentGuides()
+    if (&tabstop == 2)
+        set listchars=tab:\·\ ,leadmultispace:\·\ ,
+    elseif (&tabstop == 4)
+        set listchars=tab:\·\ ,leadmultispace:\·\ \ \ ,
+    elseif (&tabstop == 8)
+        set listchars=tab:\·\ ,leadmultispace:\·\ \ \ \ \ \ \ ,
     endif
-endfunction
+    set list!
+enddef
 
 function g:ToggleMaximizeSplit(zoom)
     if exists("t:restore_zoom") && (a:zoom == v:true || t:restore_zoom.win != winnr())
@@ -275,25 +251,36 @@ endfunction
 g:gruvbox_italic = '0' | g:gruvbox_invert_selection = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
-colorscheme cake16
+colorscheme cake16 | &bg = 'light'
 
-g:LoopColorsInt = 0
-def g:LoopColorSchemes()
-    if g:LoopColorsInt == 0
-        colorscheme cake16 | &bg = 'light'
-    elseif g:LoopColorsInt == 1
-        colorscheme gruvbox | &bg = 'dark'
-    elseif g:LoopColorsInt == 2
-        colorscheme leaf | &bg = 'dark'
-    endif
-    g:LoopColorsInt = g:LoopColorsInt + 1
-    g:LoopColorsInt = g:LoopColorsInt % 3
+def g:SelectColorScheme()
+    var schemes = getcompletion('', 'color')
+    def KeyHandler(id: number, key: string): bool
+      var menuline = line('.', id)
+      if key == "\<Enter>" || key == 'l'
+        execute 'colo' schemes[menuline - 1]
+      elseif key == 'j'
+        win_execute(id, 'normal! j')
+      elseif key == 'k'
+        win_execute(id, 'normal! k')
+      elseif key == "\<Esc>" || key == 'x' || key == 'q'
+        popup_close(id)
+      endif
+      return true
+    enddef
+    popup_create(schemes, {
+      maxheight: 20,
+      minwidth: 20,
+      cursorline: true,
+      padding: [1, 2, 1, 2],
+      filter: KeyHandler,
+    })
 enddef
 
 def g:ColorConfig()
     highlight! link foldcolumn nontext
     highlight! link vertsplit nontext
-    autocmd TerminalWinOpen * setlocal statusline=%#StatusLine#\ %.60f
+    autocmd TerminalWinOpen * setlocal statusline=%#StatusLine#\ %{g:cmode[mode()]}\ %#StatusLineNC#\ %.60f
     if &bg == "light"
         highlight Cursor guifg=NONE guibg=#000000 gui=NONE
         highlight Terminal guifg=#3C3836 ctermfg=249 guibg=#EBDBB2 ctermbg=0
@@ -310,57 +297,59 @@ def g:ColorConfig()
 enddef
 g:ColorConfig() | autocmd ColorScheme * g:ColorConfig()
 
-function g:FileSize()
-    let bytes = getfsize(expand('%:p'))
-    if (bytes >= 1024) | let kbytes = bytes / 1024 | endif
-    if (exists('kbytes') && kbytes >= 1000) | let mbytes = kbytes / 1000 | endif
-    if bytes <= 0 | return '0' | endif
-    if (exists('mbytes')) | return mbytes .. 'MB' | elseif (exists('kbytes'))
-    return kbytes .. 'KB' | else | return bytes .. 'B' | endif
-endfunction
+def g:FileSize(): string
+    var bytes = getfsize(expand('%:p'))
+    if (bytes <= 0)
+        return ''
+    endif
+    if (bytes >= 1024)
+        return bytes / 1024 .. 'KB'
+    endif
+    return bytes .. 'B'
+enddef
 
 set tabline=%!MyTabline()
-function g:GetCurrBufNames(tabCount)
-    let bufNames = {}
-    for i in range(a:tabCount)
-        let tabNum = i + 1 | let winNum = tabpagewinnr(tabNum)
-        let buflist = tabpagebuflist(tabNum) | let bufNum = buflist[winNum - 1]
-        let bufName = bufname(bufNum)
-        if bufName !=# '' | let bufName = fnamemodify(bufName, ':~:.') | endif
-        let baseName = fnamemodify(bufName, ':t')
-        let bufNames[tabNum] = {} | let bufNames[tabNum]['fn'] = bufName
-        let bufNames[tabNum]['bn'] = baseName | let bufNames[tabNum]['sn'] = baseName
+def g:GetCurrBufNames(tabCount: number): dict<any>
+    var bufNames = {}
+    for i in range(tabCount)
+        var tabNum = i + 1 | var winNum = tabpagewinnr(tabNum)
+        var buflist = tabpagebuflist(tabNum) | var bufNum = buflist[winNum - 1]
+        var bufName = bufname(bufNum)
+        if bufName !=# '' | bufName = fnamemodify(bufName, ':~:.') | endif
+        var baseName = fnamemodify(bufName, ':t')
+        bufNames[tabNum] = {} | bufNames[tabNum]['fn'] = bufName
+        bufNames[tabNum]['bn'] = baseName | bufNames[tabNum]['sn'] = baseName
     endfor
     return bufNames
-endfunction
-function g:MyTabline()
-    let s = ''
-    let tabCount = tabpagenr('$') | let bufNames = g:GetCurrBufNames(tabCount)
+enddef
+def g:MyTabline(): string
+    var s = ''
+    var tabCount = tabpagenr('$') | var bufNames = g:GetCurrBufNames(tabCount)
     for i in range(tabCount)
-        let tabNum = i + 1 | let winNum = tabpagewinnr(tabNum)
-        let buflist = tabpagebuflist(tabNum) | let bufNum = buflist[winNum - 1]
-        let bufName = bufNames[tabNum]['sn'] | let bufmodified = 0
+        var tabNum = i + 1 | var winNum = tabpagewinnr(tabNum)
+        var buflist = tabpagebuflist(tabNum) | var bufNum = buflist[winNum - 1]
+        var bufName = bufNames[tabNum]['sn'] | var bufmodified = 0
         for b in buflist
-            if getbufvar(b, '&modified') | let bufmodified = 1 | break | endif
+            if getbufvar(b, '&modified') | bufmodified = 1 | break | endif
         endfor
-        let fname = '' | let buftype = getbufvar(bufNum, '&buftype')
-        if buftype ==# '' | let fname = bufName !=# '' ? bufName : '[No Name]'
-        elseif buftype ==# 'quickfix' | let fname = '[Quickfix List]'
-        elseif buftype ==# 'help' | let fname = '[Help]'
-        else | let fname = '[' .. bufName .. ']' | endif
-        let hl = tabNum == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#' | let s ..= hl
-        let s ..= '%' .. tabNum .. 'T' | let s ..= ' [' .. tabNum .. '] '
+        var fname = '' | var buftype = getbufvar(bufNum, '&buftype')
+        if buftype ==# '' | fname = bufName !=# '' ? bufName : '[No Name]'
+        elseif buftype ==# 'quickfix' | fname = '[Quickfix List]'
+        elseif buftype ==# 'help' | fname = '[Help]'
+        else | fname = '[' .. bufName .. ']' | endif
+        var hl = tabNum == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#' | s ..= hl
+        s ..= '%' .. tabNum .. 'T' | s ..= ' [' .. tabNum .. '] '
         if exists('g:tabline_show_wins_count')
-            let winCount = tabpagewinnr(tabNum, '$')
-            if winCount > 1 | let s ..= '%#TabWinsCount#' .. winCount .. hl .. ' ' | endif
+            var winCount = tabpagewinnr(tabNum, '$')
+            if winCount > 1 | s ..= '%#TabWinsCount#' .. winCount .. hl .. ' ' | endif
         endif
-        let s ..= fname .. ' ' | if bufmodified | let s ..= '+ ' | endif
+        s ..= fname .. ' ' | if bufmodified | s ..= '+ ' | endif
     endfor
-    let s..= '%*' .. '%=' .. '%#Normal#'
-    " let s..= ' %{resolve(expand("%:p"))}%*' .. '%#Normal#' ..
-    let s..=  ' [%{&fileformat}]' ..' [%{strlen(&fenc)?&fenc:"none"}]' .. ' [%{g:FileSize()}]'
+    s ..= '%*' .. '%=' .. '%#Normal#'
+    # s ..= ' %{resolve(expand("%:p"))}%*' .. '%#Normal#' ..
+    s ..=  ' [%{&fileformat}]' .. ' [%{strlen(&fenc)?&fenc:"none"}]' .. ' [%{g:FileSize()}]'
     return s
-endfunction
+enddef
 
 g:cmode = {
     \ "n": "NORMAL", "no": "NORMAL·OPERATOR PENDING", "v": "VISUAL", "V": "V·LINE",
@@ -451,13 +440,16 @@ enddef
 
 # Remove all trailing whitespace and newlines at end of file & reset cursor position
 var currPos = getpos(".")
-def DelWhitespace()
+def StripWhitespace()
+    if &ft =~ 'markdown\|org'   # Excluded filetypes
+        return
+    endif
     currPos = getpos(".")
     exec ':%s/\s\+$//e'
     exec ':%s/\n\+\%$//e'
     cursor(currPos[1], currPos[2])
 enddef
-autocmd BufWritePre * call DelWhitespace()
+autocmd BufWritePre * StripWhitespace()
 
 # O------------------------------------------------------------------O
 # |  Mappings                                                        |
@@ -478,7 +470,7 @@ noremap H <ScriptCmd>MapH()<CR>
 nnoremap <space>G <Esc>:w<cr>
 nnoremap <silent><space>q :q<cr>
 tnoremap <silent><c-w>q exit<cr>
-nnoremap <silent><F7> :call BuildFile()<cr>
+nnoremap <silent><F7> :silent call BuildFile()<cr>
 
 # Switching tabs
 nnoremap gr gT
@@ -669,15 +661,15 @@ if has("gui_running")
 endif
 nnoremap <silent><c-q> :if empty(filter(getwininfo(), 'v:val.quickfix')) \| copen \| else \| cclose \| endif<cr>
 nnoremap <silent><space><space> :call ToggleNetrw()<cr>
-nnoremap <silent><space>ti :call ToggleIndentGuides()<cr>
+nnoremap <silent><space>ti :call IndentGuides()<cr>
 nnoremap <silent><space>tw :set wrap! wrap?<cr>
-nnoremap <silent><space>tl :set list! list?<cr>
+nnoremap <silent><space>tl :set listchars=tab:\·\ ,space:·,precedes:<,extends:>,eol:¬<cr>:set list!<cr>
 nnoremap <silent><space>tn :set number! number?<cr>
 nnoremap <silent><space>tt :if &showtabline != 1 \| set showtabline=1 \| else \| set showtabline=2 \| endif<cr>
 nnoremap <silent><space>ts :if &laststatus == 2 \| set laststatus=0 \| else \| set laststatus=2 \| endif<cr>
 nnoremap <silent><space>tf :if &foldcolumn == 1 \| setlocal foldcolumn=0 \| else \| setlocal foldcolumn=1 \| endif<cr>
 nnoremap <silent><space>tc :let &bg=(&bg=="dark"?"light":"dark")<cr>
 nnoremap <silent><space>tz :call DistractionFree()<CR>
-nnoremap <silent><space>cc :call LoopColorSchemes()<CR>
+nnoremap <silent><space>cc :call SelectColorScheme()<CR>
 nmap <silent><c-z> <Plug>(Multiterm)
 tmap <silent><c-z> <Plug>(Multiterm)
