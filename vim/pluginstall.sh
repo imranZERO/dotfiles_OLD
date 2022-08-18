@@ -1,4 +1,4 @@
-# Run inside vimfiles or .vim directory
+# Run inside %HOME%\vimfiles or ~/.vim directory
 
 mkdir -p pack/dist/opt
 
@@ -15,11 +15,12 @@ $GITCMD https://github.com/sheerun/vim-polyglot.git
 $GITCMD https://github.com/hauleth/asyncdo.vim.git
 $GITCMD https://github.com/jpalardy/vim-slime.git
 $GITCMD https://github.com/fatih/vim-go.git
-# $GITCMD https://github.com/gosukiwi/vim-smartpairs.git
-$GITCMD https://github.com/justinmk/vim-sneak.git
 $GITCMD https://github.com/mattn/emmet-vim.git
-$GITCMD https://github.com/lilydjwg/colorizer.git
-$GITCMD https://github.com/junegunn/goyo.vim.git
+$GITCMD https://github.com/habamax/vim-dir.git
+# $GITCMD https://github.com/lilydjwg/colorizer.git
+# $GITCMD https://github.com/justinmk/vim-sneak.git
+# $GITCMD https://github.com/junegunn/goyo.vim.git
+# $GITCMD https://github.com/gosukiwi/vim-smartpairs.git
 
 $GITCMD https://github.com/rafi/awesome-vim-colorschemes.git
 $GITCMD https://gitlab.com/protesilaos/tempus-themes.git
