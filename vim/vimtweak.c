@@ -3,7 +3,7 @@
  Thanks to mattn & derekmcloughlin
  -------------------------------------------------------
  cl /LD vimtweak.c user32.lib gdi32.lib
- gcc -shared -s -O2 vimtweak.c -lgdi32 -o vimtweak.dll
+ gcc -shared -Os -s vimtweak.c -lgdi32 -o vimtweak.dll
  -------------------------------------------------------
  :call libcallnr("vimtweak.dll", "SetAlpha", 200)
  :call libcallnr("vimtweak.dll", "EnableMaximize", 1)

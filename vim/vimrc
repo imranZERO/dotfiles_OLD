@@ -20,7 +20,7 @@ set nocompatible encoding=utf-8 hidden confirm
 \ virtualedit=block cursorlineopt=screenline commentstring=#\ %s
 \ wildignore=*.o,*.pyc,*.dll,*.png,*.jpg,*.gif,*.pdf
 \ wildmode=full wildoptions=fuzzy,pum,tagfile title titlestring=
-\ titlestring+=%t%(\ %M%)%(\ (%{expand(\"%:p:~:.:h\")}/)%)\ \|\ %{$USER}
+\ titlestring+=%t%(\ %M%)%(\ (%{expand(\"%:p:~:.:h\")}/)%)\ %{$USER}
 \ titlestring+=@%{hostname()}\ :\ %{substitute(getcwd(),$HOME,'~','')}
 
 # O------------------------------------------------------------------O
@@ -31,24 +31,28 @@ def Load_Plugins(t: number)
     packadd fzf | packadd fzf.vim       # junegunn/fzf
         g:fzf_layout = { 'down': '50%' }
         g:fzf_colors = { 'border': ['fg', 'Ignore'] }
-        autocmd! FileType fzf
-        autocmd FileType fzf set laststatus=0
-        \| autocmd BufLeave <buffer> set laststatus=2
+        augroup FZF | autocmd!
+            autocmd FileType fzf set laststatus=0
+            \| autocmd BufLeave <buffer> set laststatus=2
+        augroup end
     packadd asyncdo.vim                 # hauleth/asyncdo.vim
         command! -bang -nargs=* -complete=file Make
         \ asyncdo#run(<bang>0, &makeprg, <f-args>)
     packadd vim-slime                   # jpalardy/vim-slime
         g:slime_target = "vimterminal"
     packadd rainbow_parentheses.vim     # junegunn/rainbow_parentheses
-        autocmd FileType * RainbowParentheses
-        # autocmd FileType lisp,clojure,scheme RainbowParentheses
+        augroup RAINBOW_PARENS | autocmd!
+            autocmd FileType * RainbowParentheses
+            # autocmd FileType lisp,clojure,scheme RainbowParentheses
+        augroup end
+    packadd vim-polyglot                # sheerun/vim-polyglot
+        command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
     packadd vim-fugitive                # tpope/vim-fugitive
     packadd vim-surround                # tpope/vim-surround
     packadd vim-repeat                  # tpope/vim-repeat
     packadd multiterm.vim               # chengzeyi/multiterm.vim
-    packadd vim-polyglot                # sheerun/vim-polyglot
-        command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
     packadd vim-commentary              # tpope/vim-commentary
+    packadd vim-dir                     # habamax/vim-dir
 enddef
 augroup USER_CMDS | autocmd!
     autocmd VimEnter * timer_start(20, function('Load_Plugins'))
@@ -85,26 +89,26 @@ augroup END
 # Alternate C/C++ source/header
 command! A g:A('e')
 command! AV g:A('botright vertical split')
-function g:A(cmd)
-    let name = expand('%:r')
-    let ext = tolower(expand('%:e'))
-    let sources = ['c', 'cc', 'cpp', 'cxx']
-    let headers = ['h', 'hh', 'hpp', 'hxx']
+def g:A(cmd: string)
+    var name = expand('%:r')
+    var ext = tolower(expand('%:e'))
+    var sources = ['c', 'cc', 'cpp', 'cxx']
+    var headers = ['h', 'hh', 'hpp', 'hxx']
     for pair in [[sources, headers], [headers, sources]]
-        let [set1, set2] = pair
+        var [set1, set2] = pair
         if index(set1, ext) >= 0
             for h in set2
-                let aname = name..'.'..h
+                var aname = name .. '.' .. h
                 for a in [aname, toupper(aname)]
                     if filereadable(a)
-                        execute a:cmd a
+                        execute cmd a
                         return
-                    end
+                    endif
                 endfor
             endfor
         endif
     endfor
-endfunction
+enddef
 
 def g:BuildFile()
     exec "w"
@@ -137,9 +141,18 @@ if has("gui_running")
         endif
     enddef
 
+    def g:PopupMenuFilter(id: number, key: string): bool
+        if key == "\<esc>" || key == 'q'
+            popup_close(id, 0)
+            return false
+        endif
+        return popup_filter_menu(id, key)
+    enddef
+
     set guioptions=i
-    set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor
-    set guicursor=i-c-ci:hor10-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
+    set guicursor=i-c-ci:hor10-Cursor/lCursor
+    # set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor
+    # set guicursor=i-c-ci:hor10-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
 
     g:ScrollBar = 0
 
@@ -150,7 +163,10 @@ endif
 
 if has("gui_running") && has("win32")
     set renderoptions=type:directx
-    autocmd GUIEnter * simalt ~x    # Start maximized
+
+    augroup MAXIMIZED | autocmd!
+        autocmd GUIEnter * simalt ~x
+    augroup end
 
     augroup CURSORLINE | autocmd!
         autocmd WinEnter * set cursorline | autocmd WinLeave * set nocursorline
@@ -175,13 +191,6 @@ if has("gui_running") && has("win32")
                 \| libcallnr("vimtweak.dll", "EnableCaption", 1) | else
                 \| g:Caption = 0 | libcallnr("vimtweak.dll", "EnableCaption", 0) | endif
         endif
-    enddef
-    def g:PopupMenuFilter(id: number, key: string): bool
-        if key == "\<esc>" || key == 'q'
-            popup_close(id, 0)
-            return false
-        endif
-        return popup_filter_menu(id, key)
     enddef
 endif
 
@@ -215,8 +224,9 @@ enddef
 g:gruvbox_italic = '0' | g:gruvbox_invert_selection = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
-# colorscheme gruvbox | &bg = 'dark'
-colorscheme cake16 | &bg = 'light'
+colorscheme gruvbox | &bg = 'dark'
+# colorscheme cake16 | &bg = 'light'
+# colorscheme hybrid | &bg = 'dark'
 
 def SelectColorScheme()
     var schemes = getcompletion('', 'color')
@@ -245,22 +255,27 @@ enddef
 def g:ColorConfig()
     highlight! link foldcolumn nontext
     highlight! link vertsplit nontext
-    autocmd TerminalWinOpen * setlocal statusline=%#StatusLine#\ %{g:cmode[mode()]}\ %#StatusLineNC#\ %.60f
+    augroup TERMINAL_STATUSLINE | autocmd!
+        autocmd TerminalWinOpen * setlocal statusline=%#StatusLine#\ %{g:cmode[mode()]}\ %#StatusLineNC#\ %.60f
+    augroup end
     if &bg == "light"
-        highlight Cursor guifg=NONE guibg=#000000 gui=NONE
+        highlight Cursor guifg=#FFFFFF guibg=#000000 gui=NONE
         highlight Terminal guifg=#3C3836 ctermfg=249 guibg=#EBDBB2 ctermbg=0
         g:terminal_ansi_colors = [
             \ "#774f38", "#b95942", "#308444", "#996e1f", "#50707e", "#aa56b2", "#308090", "#ede4d4",
             \ "#878787", '#f10000', '#82a3b3', '#B95942', '#678797', '#afafaf', '#afafaf', '#f7efdf',]
     else
-        highlight Cursor guifg=NONE guibg=#00F700 gui=NONE cterm=NONE
+        highlight Cursor guifg=#000000 guibg=#00F700 gui=NONE cterm=NONE
         highlight Terminal guifg=#DAB98F ctermfg=249 guibg=#161616 ctermbg=0
         g:terminal_ansi_colors = [
             \ "#272822", "#f92672", "#a6e22e", "#f4bf75", "#66d9ef", "#ae81ff", "#a1efe4", "#f8f8f2",
             \ "#75715e", "#f92672", "#a6e22e", "#f4bf75", "#66d9ef", "#ae81ff", "#a1efe4", "#f9f8f5",]
     endif
 enddef
-g:ColorConfig() | autocmd ColorScheme * g:ColorConfig()
+g:ColorConfig()
+augroup COLORCONFIG | autocmd!
+    autocmd ColorScheme * g:ColorConfig()
+augroup end
 
 # O------------------------------------------------------------------O
 # |  Misc.                                                           |
@@ -268,7 +283,7 @@ g:ColorConfig() | autocmd ColorScheme * g:ColorConfig()
 def Intro()
     if argc() || line2byte('$') != -1 || v:progname !~? '^[-gmnq]\=vim\=x\=\%[\.exe]$' || &insertmode
     return | endif | enew | setlocal bh=wipe bt=nofile nobl nocuc nocul nolist nonu noswf
-    # append(0, "Unfortunately, there's a radio connected to my brain.")
+    # append(0, 'Unfortunately, there''s a radio connected to my brain.')
     popup_create(["             |    |    |",
                 \ "            )_)  )_)  )_)",
                 \ "           )___))___))___)\ ",
@@ -330,7 +345,7 @@ def ToggleIndentGuides()
     set list!
 enddef
 
-function g:ToggleMaximizeSplit(zoom)
+function ToggleMaximizeSplit(zoom)
     if exists("t:restore_zoom") && (a:zoom == v:true || t:restore_zoom.win != winnr())
         exec t:restore_zoom.cmd
         unlet t:restore_zoom
@@ -383,6 +398,11 @@ def ToggleColorColumn(all: bool = false)
     else
         setlocal varsofttabstop&
     endif
+enddef
+
+def LineHighlight()
+    highlight LineHighlight guifg=black guibg=white
+    matchadd('LineHighlight', '\%' .. line('.') .. 'l')
 enddef
 
 # Set tab width to n spaces
@@ -464,10 +484,8 @@ def g:Statusline()
     # set statusline+=\ [%02p%%]                                  # Percentage
     set statusline+=\ %r%m%h                                    # Readonly,modified,help
     set statusline+=%=                                          # Right align
-    if exists('g:loaded_fugitive')
-        set statusline+=\ %{FugitiveHead()}\                    # Git branch
-    endif
-    set statusline+=%*                                          # Default highlight
+    set statusline+=%{exists('g:loaded_fugitive')?FugitiveHead():''}
+    set statusline+=\ %*                                        # Default highlight
     set statusline+=%{exists('g:asyncdo')?'[running]':''}       # AsyncDo status
     # set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\ \|         # File encoding
     # set statusline+=\ %{&fileformat}\ \\|                       # File format
@@ -476,11 +494,13 @@ def g:Statusline()
 enddef
 g:Statusline()
 
-# Automatically resize splits on window resize
-autocmd VimResized * wincmd =
+augroup CLEAR_JUMPLIST | autocmd!
+    autocmd VimEnter * exe 'clearjumps'
+augroup end
 
-# Clear jumplist at startup
-autocmd VimEnter * exe 'clearjumps'
+augroup WINRESIZE | autocmd!
+    autocmd VimResized * wincmd =
+augroup end
 
 # :t to :tabe
 cnoreabbrev <expr> t getcmdtype() == ":" && getcmdline() == 't' ? 'tabe' : 't'
@@ -492,10 +512,10 @@ cnoreabbrev <expr> h getcmdtype() == ":" && getcmdline() == 'h' ? 'tab help' : '
 command! S vnew | setlocal nobuflisted buftype=nofile bufhidden=wipe
 
 # Universal opposite of J
-function g:BreakHere()
+def g:BreakHere()
     s/^\(\s*\)\(.\{-}\)\(\s*\)\(\%#\)\(\s*\)\(.*\)/\1\2\r\1\4\6
-    call histdel("/", -1)
-endfunction
+    histdel("/", -1)
+enddef
 
 # Better PgUp/PgDn
 def MapL()
@@ -524,7 +544,7 @@ augroup FORMATOPTIONS | autocmd!
     autocmd FileType * setlocal formatoptions-=t   # Don't autowrap text using 'textwidth'
 augroup END
 
-def g:WipeHiddenBuffers()
+def WipeHiddenBuffers()
     var buffers = filter(getbufinfo(), (_, v) => v.hidden)
     if !empty(buffers)
         execute 'confirm bwipeout' join(mapnew(buffers, (_, v) => v.bufnr))
@@ -546,7 +566,9 @@ def StripWhitespace()
     exec ':%s/\n\+\%$//e'
     cursor(currPos[1], currPos[2])
 enddef
-autocmd BufWritePre * StripWhitespace()
+augroup STRIP_WHITESPACE | autocmd!
+    autocmd BufWritePre * StripWhitespace()
+augroup end
 
 # O------------------------------------------------------------------O
 # |  Mappings                                                        |
@@ -590,7 +612,7 @@ nnoremap <silent><c-l> :nohlsearch<cr>:call Statusline()<cr><c-l>
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
-# Reselect the last change
+# Reselect the last selection
 nnoremap <space>gv `[v`]
 
 # Don't lose selection when shifting sidewards
@@ -611,7 +633,12 @@ tnoremap <c-v> <c-w>"+
 # Search & Replace ('g' global, 'c' confirm)
 nnoremap <space>ss :%s//gc<Left><Left><Left>
 nnoremap <Space>S :%s/\<<C-r>=expand("<cword>")<cr>\>/
+
+# Number of matches on last search
 nnoremap <space>sn :%s///gn<cr>
+
+# Search the last visual selection
+nnoremap <space>sv /\%V
 
 # Delete all occurences of selected text
 xnoremap <space>d y:%s/<c-r>"//gc<cr>
@@ -660,12 +687,14 @@ if has("win32") && (&shell =~# '\<cmd\.exe$')
     tnoremap <silent><C-e> <end>
     tnoremap <silent><C-a> <home>
     tnoremap <silent><C-u> <esc>
-    nnoremap <silent><space><cr> :vert term<cr>%HOME%\cmdrc.bat<cr>
-    nnoremap <silent><space><c-cr> :term<cr>%HOME%\cmdrc.bat<cr>
     tnoremap <silent><F12> %HOME%\cmdrc.bat<cr>
+    nnoremap <silent><space><cr> :vert term<cr>%HOME%\cmdrc.bat<cr>
+    nnoremap <silent><space><s-cr> :term<cr>%HOME%\cmdrc.bat<cr>
+    nnoremap <silent><space><c-cr> :tab :term<cr>%HOME%\cmdrc.bat<cr>
 else
     nnoremap <silent><space><cr> :vert term<cr>
-    nnoremap <silent><space><c-cr> :term<cr>
+    nnoremap <silent><space><s-cr> :term<cr>
+    nnoremap <silent><space><c-cr> :tab :term<cr>
 endif
 
 # Command mode
@@ -712,7 +741,7 @@ nnoremap <space>bn :bn<cr>
 nnoremap <space>bp :bp<cr>
 nnoremap <space>bd :bd<cr>
 nnoremap <space>bw :bw<cr>
-nnoremap <silent><space>bo :call g:WipeHiddenBuffers()<cr>
+nnoremap <silent><space>bo <ScriptCmd>WipeHiddenBuffers()<cr>
 nnoremap <space>, :buffers<cr>:buffer<Space>
 
 # Split navigation
@@ -727,7 +756,7 @@ nnoremap <silent><c-Down> :res -3<cr>
 nnoremap <silent><c-Left> :vert res +3<cr>
 nnoremap <silent><c-Right> :vert res -3<cr>
 
-nnoremap <silent><space>wm :call ToggleMaximizeSplit(v:true)<cr>
+nnoremap <silent><space>wm <ScriptCmd>ToggleMaximizeSplit(v:true)<cr>
 
 # FZF (plugin)
 nnoremap <space>r :Rg<cr>
@@ -771,6 +800,8 @@ nnoremap <silent><space>ts :if &laststatus == 2 \| set laststatus=0 \| else \| s
 nnoremap <silent><space>tf :if &foldcolumn == 1 \| setlocal foldcolumn=0 \| else \| setlocal foldcolumn=1 \| endif<cr>
 nnoremap <silent><space>tc <ScriptCmd>ToggleColorColumn()<cr>
 nnoremap <silent><space>tC <ScriptCmd>ToggleColorColumn(true)<cr>
+nnoremap <silent><space>th <ScriptCmd>LineHighlight()<cr>
+nnoremap <silent><space>tH :call clearmatches()<cr>
 nnoremap <silent><space>cc <ScriptCmd>InlineColors()<cr>
 nnoremap <silent><F9> :let &bg=(&bg=="dark"?"light":"dark")<cr>
 nnoremap <silent><S-F9> <ScriptCmd>SelectColorScheme()<cr>
