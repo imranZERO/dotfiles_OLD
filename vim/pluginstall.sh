@@ -9,6 +9,7 @@ $GITCMD https://github.com/junegunn/fzf.vim.git
 $GITCMD https://github.com/tpope/vim-commentary.git
 $GITCMD https://github.com/tpope/vim-surround.git
 $GITCMD https://github.com/tpope/vim-repeat.git
+$GITCMD https://github.com/tpope/vim-fugitive.git
 $GITCMD https://github.com/junegunn/rainbow_parentheses.vim.git
 $GITCMD https://github.com/chengzeyi/multiterm.vim.git
 $GITCMD https://github.com/sheerun/vim-polyglot.git
@@ -17,6 +18,7 @@ $GITCMD https://github.com/jpalardy/vim-slime.git
 $GITCMD https://github.com/fatih/vim-go.git
 $GITCMD https://github.com/mattn/emmet-vim.git
 $GITCMD https://github.com/habamax/vim-dir.git
+$GITCMD https://github.com/imranzero/wintweak.gvim.git
 # $GITCMD https://github.com/lilydjwg/colorizer.git
 # $GITCMD https://github.com/justinmk/vim-sneak.git
 # $GITCMD https://github.com/junegunn/goyo.vim.git
@@ -25,3 +27,4 @@ $GITCMD https://github.com/habamax/vim-dir.git
 $GITCMD https://github.com/rafi/awesome-vim-colorschemes.git
 $GITCMD https://gitlab.com/protesilaos/tempus-themes.git
 $GITCMD https://github.com/mvanderkamp/cocoa.vim.git
+$GITCMD https://github.com/tobi-wan-kenobi/zengarden.git

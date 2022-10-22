@@ -19,9 +19,9 @@ set nocompatible encoding=utf-8 hidden confirm
 \ listchars=tab:\·\ ,space:·,precedes:<,extends:>,eol:¬
 \ virtualedit=block cursorlineopt=screenline commentstring=#\ %s
 \ wildignore=*.o,*.pyc,*.dll,*.png,*.jpg,*.gif,*.pdf
-\ wildmode=full wildoptions=fuzzy,pum,tagfile title titlestring=
-\ titlestring+=%t%(\ %M%)%(\ (%{expand(\"%:p:~:.:h\")}/)%)\ %{$USER}
-\ titlestring+=:\ %{substitute(getcwd(),$HOME,'~','')}\ @%{hostname()}
+\ wildmode=full wildoptions=fuzzy,pum,tagfile title
+\ titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:~:.:h\")}/)%)
+\ titlestring+=\ %{getcwd()}\ @%{hostname()}
 
 # O------------------------------------------------------------------O
 # |  Plugins (with VIM8+ plugin manager)                             |
@@ -53,6 +53,7 @@ def Load_Plugins(t: number)
     packadd multiterm.vim               # chengzeyi/multiterm.vim
     packadd vim-commentary              # tpope/vim-commentary
     packadd vim-dir                     # habamax/vim-dir
+    packadd wintweak.gvim               # imranzero/wintweak.gvim
 enddef
 augroup USER_CMDS | autocmd!
     autocmd VimEnter * timer_start(20, function('Load_Plugins'))
@@ -87,9 +88,9 @@ augroup FILETYPE_GO | autocmd!
 augroup END
 
 # Alternate C/C++ source/header
-command! A g:A('e')
-command! AV g:A('botright vertical split')
-def g:A(cmd: string)
+command! A A('e')
+command! AV A('botright vertical split')
+def A(cmd: string)
     var name = expand('%:r')
     var ext = tolower(expand('%:e'))
     var sources = ['c', 'cc', 'cpp', 'cxx']
@@ -110,7 +111,7 @@ def g:A(cmd: string)
     endfor
 enddef
 
-def g:BuildFile()
+def BuildFile()
     exec "w"
     if &filetype == 'python'   | exec "vert term python %"
     elseif &filetype == 'lua'  | exec "vert term lua %"
@@ -126,21 +127,20 @@ enddef
 # |  Gui                                                             |
 # O------------------------------------------------------------------O
 if has("gui_running")
-    def g:Menuhandler(id: number, result: number)
+    def Menuhandler(id: number, result: number)
         if result == 1
             &bg = (&bg == "dark" ? "light" : "dark")
         elseif result == 2
             ColorSchemeMenu()
         elseif result == 3
-            popup_menu(['Consolas', 'Terminus', 'Fira Mono', 'Victor Mono', 'JetBrains Mono'],
-                     \ {filter: 'g:PopupMenuFilter', callback: 'g:GuiFontMenuhandler', title: 'Fonts'})
+            popup_menu(['Consolas', 'Terminus', 'Fira Mono', 'Victor Mono', 'JetBrains Mono', 'FixedSys'],
+                     \ {filter: 'PopupMenuFilter', callback: 'GuiFontMenuhandler', title: 'Fonts'})
         elseif result == 4
-            popup_menu(['Gvim Enhancements', 'Window Transparency', 'Window Topmost', 'Window Caption', 'Fullscreen'],
-                     \ {filter: 'g:PopupMenuFilter', callback: 'g:GuiOpMenuhandler', title: 'GUI Options'})
+            wintweak#Wintweak()
         endif
     enddef
 
-    def g:PopupMenuFilter(id: number, key: string): bool
+    def PopupMenuFilter(id: number, key: string): bool
         if key == "\<esc>" || key == 'q'
             popup_close(id, 0)
             return false
@@ -149,93 +149,92 @@ if has("gui_running")
     enddef
 
     set guifont=jetbrains_mono_nl_regular:h11
-    def g:GuiFontMenuhandler(id: number, result: number)
-        if result == 1
-            set guifont=Consolas:h11
-        elseif result == 2
-            set guifont=Terminus:h11
-        elseif result == 3
-            set guifont=Fira_Mono:h11
-        elseif result == 4
-            set guifont=Victor_Mono:h11 | set linespace=1
-        elseif result == 5
-            set guifont=jetbrains_mono_nl_regular:h11
+    def GuiFontMenuhandler(id: number, result: number)
+            if result == 1 | set guifont=Consolas:h11
+        elseif result == 2 | set guifont=Terminus:h11
+        elseif result == 3 | set guifont=Fira_Mono:h11
+        elseif result == 4 | set guifont=Victor_Mono:h11 linespace=1
+        elseif result == 5 | set guifont=jetbrains_mono_nl_regular:h11
+        elseif result == 6 | set guifont=FixedSys
         endif
     enddef
 
+    g:ScrollBar = 0
     set guioptions=i
+
     set guicursor=i-c-ci:hor10-Cursor/lCursor
     # set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor
     # set guicursor=i-c-ci:hor10-Cursor/lCursor,r-cr:hor20-Cursor/lCursor
-
-    g:ScrollBar = 0
-endif
-
-if has("gui_running") && has("win32")
-    set renderoptions=type:directx
-
-    augroup MAXIMIZED | autocmd!
-        autocmd GUIEnter * simalt ~x
-    augroup end
 
     augroup CURSORLINE | autocmd!
         autocmd WinEnter * set cursorline | autocmd WinLeave * set nocursorline
         autocmd InsertEnter * set nocursorline | autocmd InsertLeave * set cursorline
     augroup end
+endif
 
-    # Gvim tweaks - gist.github.com/imranZERO/d4245f05fa3125e7575b33897d5339bb
-    g:Alpha = 0 | g:TopMost = 0 | g:Caption = 1
-    def g:GuiOpMenuhandler(id: number, result: number)
-        if result == 1
-            if &guioptions == 'i' | set go=imTrL | else | set go=i | endif
-        elseif result == 2
-            if g:Alpha == 0 | g:Alpha = 1
-                \| libcallnr("vimtweak.dll", "SetAlpha", 230) | else
-                \| g:Alpha = 0 | libcallnr("vimtweak.dll", "SetAlpha", 255) | endif
-        elseif result == 3
-            if g:TopMost == 0 | g:TopMost = 1
-                \| libcallnr("vimtweak.dll", "EnableTopMost", 1) | else
-                \| g:TopMost = 0 | libcallnr("vimtweak.dll", "EnableTopMost", 0) | endif
-        elseif result == 4
-            if g:Caption == 0 | g:Caption = 1
-                \| libcallnr("vimtweak.dll", "EnableCaption", 1) | else
-                \| g:Caption = 0 | libcallnr("vimtweak.dll", "EnableCaption", 0) | endif
-        elseif result == 5
-            if g:Caption == 0 | g:Caption = 1
-                \| libcallnr("vimtweak.dll", "ToggleFullScreen", 1) | else
-                \| g:Caption = 0 | libcallnr("vimtweak.dll", "ToggleFullScreen", 0) | endif
-        endif
-    enddef
+if has("gui_win32")
+    set renderoptions=type:directx
+
+    augroup MAXIMIZED | autocmd!
+        autocmd GUIEnter * simalt ~x
+    augroup end
 endif
 
 # O------------------------------------------------------------------O
 # |  Colors                                                          |
 # O------------------------------------------------------------------O
-def InlineColors(clear: bool = false): void
-    if exists('b:prop_ids') == 1
-        map(b:prop_ids, (_, p) => prop_remove({id: p}))
+var InlineColorsEnabled = 0 | var color_char = "■" # "●"
+def InlineColors(lines: list<number> = [line('.'), line('.')])
+    if !exists('b:inline_color')
+        b:inline_color = {}
     endif
-    b:prop_ids = []
-    if clear | return | endif
-    for row in range(1, line('$'))
-        var current = getline(row)
+    if !empty(b:inline_color)
+        prop_remove({types: b:inline_color->keys(), all: true}, lines[0], lines[1])
+    endif
+    for linenr in range(lines[0], lines[1])
+        var line = getline(linenr)
         var cnt = 1
-        var [hex, starts, ends] = matchstrpos(current, '#\x\{6\}', 0, cnt)
+        var [hex, starts, ends] = matchstrpos(line, '#\x\{6}', 0, cnt)
         while starts != -1
             var col_tag = "inline_color_" .. hex[1 : ]
-            var col_type = prop_type_get(col_tag)
-            if col_type == {}
+            var hl = hlget(col_tag)
+            if empty(hl) || hl[0]->has_key("cleared")
                 hlset([{name: col_tag, guifg: hex}])
+            endif
+            if prop_type_get(col_tag) == {}
                 prop_type_add(col_tag, {highlight: col_tag})
             endif
-            add(b:prop_ids, prop_add(row, starts + 1, {length: ends - starts, text: " \u25CF ", type: col_tag}))
+            prop_add(linenr, starts + 1, {text: color_char, type: col_tag})
+            b:inline_color[col_tag] = 1
             cnt += 1
-            [hex, starts, ends] = matchstrpos(current, '#\x\{6\}', 0, cnt)
+            [hex, starts, ends] = matchstrpos(line, '#\x\{6}', 0, cnt)
         endwhile
     endfor
 enddef
+def WindowLines(): list<number>
+    var view = winsaveview()
+    var line_start = view.topline
+    var line_end = view.topline + winheight(winnr())
+    return [line_start, line_end]
+enddef
+def ToggleInlineColors()
+    if InlineColorsEnabled == 0
+        InlineColorsEnabled = 1
+        InlineColors(WindowLines())
+        augroup INLINE_COLORS | autocmd!
+            autocmd WinScrolled * InlineColors(WindowLines())
+            autocmd BufRead * InlineColors(WindowLines())
+            autocmd Colorscheme * InlineColors(WindowLines())
+            autocmd TextChanged * InlineColors([line("'["), line("']")])
+        augroup END
+    elseif InlineColorsEnabled == 1
+        InlineColorsEnabled = 0
+        autocmd! INLINE_COLORS
+        prop_remove({types: b:inline_color->keys(), all: true})
+    endif
+enddef
 
-g:gruvbox_italic = '0' | g:gruvbox_invert_selection = '0'
+g:gruvbox_invert_selection = '0' #| g:gruvbox_italic = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
 colorscheme gruvbox | &bg = 'dark'
@@ -298,17 +297,7 @@ def Intro()
     if argc() || line2byte('$') != -1 || v:progname !~? '^[-gmnq]\=vim\=x\=\%[\.exe]$' || &insertmode
     return | endif | enew | setlocal bh=wipe bt=nofile nobl nocuc nocul nolist nonu noswf
     # append(0, 'Unfortunately, there''s a radio connected to my brain.')
-    popup_create(["             |    |    |",
-                \ "            )_)  )_)  )_)",
-                \ "           )___))___))___)\ ",
-                \ "          )____)____)_____)\\",
-                \ "        _____|____|____|____\\\__",
-                \ "---------\                   /---------",
-                \ " ^^^^^ ^^^^^^^^^^^^^^^^^^^^^",
-                \ "   ^^^^      ^^^^     ^^^    ^^",
-                \ "        ^^^^      ^^^",
-                \ "", "           Hello Sailor!"],
-                \ {time: 1337, highlight: 'Normal'})
+    popup_create(["Hello Sailor!"], {time: 1337, highlight: 'string'})
     setlocal nomodifiable nomodified
     nnoremap <silent><buffer>e :enew<cr>
     nnoremap <silent><buffer>i :enew <bar> startinsert<cr>
@@ -398,13 +387,17 @@ g:distractionFree = 0
 def DistractionFree()
     if (g:distractionFree == 0)
         g:distractionFree = 1
-        set laststatus=0 showtabline=0 fillchars=vert:\ ,
+        set laststatus=0 showtabline=0 fillchars=vert:\ , linebreak showbreak=
+        nnoremap <expr> j v:count ? 'j' : 'gj'
+        nnoremap <expr> k v:count ? 'k' : 'gk'
         highlight! EndOfBuffer guifg=bg
         wincmd o | lefta vnew | vertical resize 34
         wincmd w | vnew | vertical resize 34 | wincmd h
     else
         g:distractionFree = 0
-        set laststatus=2 showtabline=1 fillchars=vert:\│,
+        set laststatus=2 showtabline=1 fillchars=vert:\│, nolinebreak showbreak=»
+        unmap k
+        unmap j
         highlight! link EndOfBuffer Comment
         wincmd h | bw | wincmd l | bw
     endif
@@ -457,13 +450,13 @@ def g:FileSize(): string
         return ''
     endif
     if (bytes >= 1024)
-        return bytes / 1024 .. 'KB'
+        return bytes / 1024 .. 'kB'
     endif
     return bytes .. 'B'
 enddef
 
 set tabline=%!MyTabline()
-def g:GetCurrBufNames(tabCount: number): dict<any>
+def GetCurrBufNames(tabCount: number): dict<any>
     var bufNames = {}
     for i in range(tabCount)
         var tabNum = i + 1 | var winNum = tabpagewinnr(tabNum)
@@ -478,7 +471,7 @@ def g:GetCurrBufNames(tabCount: number): dict<any>
 enddef
 def g:MyTabline(): string
     var s = ''
-    var tabCount = tabpagenr('$') | var bufNames = g:GetCurrBufNames(tabCount)
+    var tabCount = tabpagenr('$') | var bufNames = GetCurrBufNames(tabCount)
     for i in range(tabCount)
         var tabNum = i + 1 | var winNum = tabpagewinnr(tabNum)
         var buflist = tabpagebuflist(tabNum) | var bufNum = buflist[winNum - 1]
@@ -489,19 +482,14 @@ def g:MyTabline(): string
         var fname = '' | var buftype = getbufvar(bufNum, '&buftype')
         if buftype ==# '' | fname = bufName !=# '' ? bufName : '[No Name]'
         elseif buftype ==# 'quickfix' | fname = '[Quickfix List]'
-        elseif buftype ==# 'help' | fname = '[Help]'
         else | fname = '[' .. bufName .. ']' | endif
-        var hl = tabNum == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#' | s ..= hl
-        s ..= '%' .. tabNum .. 'T' | s ..= ' [' .. tabNum .. '] '
-        if exists('g:tabline_show_wins_count')
-            var winCount = tabpagewinnr(tabNum, '$')
-            if winCount > 1 | s ..= '%#TabWinsCount#' .. winCount .. hl .. ' ' | endif
-        endif
-        s ..= fname .. ' ' | if bufmodified | s ..= '+ ' | endif
+        s ..= tabNum == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
+        s ..= '%' .. tabNum .. '  [' .. tabNum .. '] ' .. fname .. ' '
+        s ..= bufmodified == 1 ? '+ ' : ''
     endfor
-    s ..= '%*' .. '%=' .. '%#Normal#'
-    # s ..= ' %{resolve(expand("%:p"))}%*' .. '%#Normal#' ..
-    s ..=  ' [%{&fileformat}]' .. ' [%{strlen(&fenc)?&fenc:"none"}]' .. ' [%{g:FileSize()}]'
+    s ..= '%*' .. '%=' .. '%#Normal#' #.. ' %{resolve(expand("%:p"))}%*' .. '%#Normal#'
+    s ..= ' [%{toupper(&fileformat)}]' .. ' [%{toupper(strlen(&fenc)?&fenc:"none")}]'
+    s ..= ' [%{g:FileSize()}]'
     return s
 enddef
 
@@ -510,28 +498,29 @@ g:cmode = {
     \ "\<C-V>": "V·BLOCK", "s": "SELECT", "S": "S·LINE", "^S": "S·BLOCK", "i": "INSERT",
     \ "R": "REPLACE", "Rv": "V·REPLACE", "c": "COMMAND", "cv": "VIM EX", "ce": "Ex",
     \ "r": "PROMPT", "rm": "MORE", "r?": "CONFIRM", "!": "SHELL", "t": "TERMINAL" }
-def g:Statusline()
-    set statusline=
-    set statusline+=\ %{g:cmode[mode()]}\                       # Current mode
-    set statusline+=%<                                          # Truncate
-    set statusline+=%#StatusLineNC#                             # Highlight
-    # set statusline+=\ [%n]                                      # Buffer number
-    # set statusline+=\ %t                                        # File name
-    # set statusline+=\ %f                                        # File path relative
-    set statusline+=\ %.40F                                     # File path full
-    # set statusline+=\ [%{g:FileSize()}]                         # File size
-    # set statusline+=\ [%02p%%]                                  # Percentage
-    set statusline+=\ %r%m%h                                    # Readonly,modified,help
-    set statusline+=%=                                          # Right align
-    set statusline+=%{exists('g:loaded_fugitive')?FugitiveHead():''}
-    set statusline+=\ %*                                        # Default highlight
-    set statusline+=%{exists('g:asyncdo')?'[running]':''}       # AsyncDo status
-    # set statusline+=\ %{strlen(&fenc)?&fenc:'none'}\ \|         # File encoding
-    # set statusline+=\ %{&fileformat}\ \\|                       # File format
-    set statusline+=\ %{strlen(&ft)?&ft:'none'}\ \\|            # Filetype
-    set statusline+=\ %02c:%3l/%L\                              # Column:line/total
+set statusline=%!Statusline()
+def g:Statusline(): string
+    var s = ''
+    s ..= ' %{g:cmode[mode()]} ' # Current mode
+    s ..= '%<' # Truncate
+    s ..= '%#StatusLineNC#' # Highlight
+    # s ..= ' [%n]' # Buffer number
+    # s ..= ' %t' # File name
+    # s ..= ' %f' # File path relative
+    s ..= ' %.40F' # File path full
+    # s ..= ' [%{g:FileSize()}]'
+    # s ..= ' [%02p%%]' # Percentage
+    s ..= ' %r%m%h' # Readonly,modified,help
+    s ..= '%=' # Right align
+    s ..= '%{exists("g:loaded_fugitive")?FugitiveHead():""}' # Git branch
+    s ..= ' %*' # Default highlight
+    s ..= '%{exists("g:asyncdo")?"[running]":""}' # AsyncDo status
+    # s ..= ' %{strlen(&fenc)?&fenc:"none"} |' # File encoding
+    # s ..= ' %{&fileformat} |' # File format
+    s ..= ' %{strlen(&ft)?&ft:"none"} |' # Column:line/total
+    s ..= ' %02c:%3l/%L ' # Column:line/total
+    return s
 enddef
-g:Statusline()
 
 augroup CLEAR_JUMPLIST | autocmd!
     autocmd VimEnter * exe 'clearjumps'
@@ -551,9 +540,27 @@ cnoreabbrev <expr> h getcmdtype() == ":" && getcmdline() == 'h' ? 'tab help' : '
 command! S vnew | setlocal nobuflisted buftype=nofile bufhidden=wipe
 
 # Universal opposite of J
-def g:BreakHere()
+def BreakHere()
     s/^\(\s*\)\(.\{-}\)\(\s*\)\(\%#\)\(\s*\)\(.*\)/\1\2\r\1\4\6
     histdel("/", -1)
+enddef
+
+def SmoothScroll(dir: string, dist: number, duration: number, speed: number)
+    for i in range(dist / speed)
+        var start = reltime()
+        if dir ==# 'd'
+            exec "normal! " .. speed .. "\<C-e>" .. speed .. "j"
+        else
+            exec "normal! " .. speed .. "\<C-y>" .. speed .. "k"
+        endif
+        redraw
+        var cost = split(reltimestr(reltime(start)), '\.')
+        var elapsed = str2nr(cost[0]) * 1000 + str2nr(cost[1]) / 1000.0
+        var snooze = float2nr(duration - elapsed)
+        if snooze > 0
+            exec "sleep " .. snooze .. "m"
+        endif
+    endfor
 enddef
 
 # Better PgUp/PgDn
@@ -625,13 +632,20 @@ nnoremap gl $
 noremap L <ScriptCmd>MapL()<cr>
 noremap H <ScriptCmd>MapH()<cr>
 
+nnoremap <silent><c-u> <ScriptCmd>SmoothScroll('u', &scroll, 0, 2)<cr>
+nnoremap <silent><c-d> <ScriptCmd>SmoothScroll('d', &scroll, 0, 2)<cr>
+nnoremap <silent><c-b> <ScriptCmd>SmoothScroll('u', &scroll * 2, 0, 4)<cr>
+nnoremap <silent><c-f> <ScriptCmd>SmoothScroll('d', &scroll * 2, 0, 4)<cr>
+
 nnoremap <space>G <Esc>:w<cr>
 nnoremap <silent><space>q :q<cr>
 tnoremap <silent><c-w>q exit<cr>
-nnoremap <silent><F7> :silent call BuildFile()<cr>
+nnoremap <silent><F7> <ScriptCmd>silent BuildFile()<cr>
 
 # Switching tabs
 nnoremap gr gT
+nnoremap <tab> gt
+nnoremap <s-tab> gT
 
 # Swap ` and ' for marks
 nnoremap ' `
@@ -645,7 +659,7 @@ nnoremap C "_C
 nnoremap Y y$
 
 # Clear search highlighting & refresh statusline
-nnoremap <silent><c-l> :nohlsearch<cr>:call Statusline()<cr><c-l>
+nnoremap <silent><c-l> <Cmd>nohlsearch <bar> call Statusline()<cr><c-l>
 
 # Keeping it centered
 nnoremap n nzzzv
@@ -671,7 +685,7 @@ tnoremap <c-v> <c-w>"+
 
 # Search & Replace ('g' global, 'c' confirm)
 nnoremap <space>ss :%s//gc<Left><Left><Left>
-nnoremap <Space>S :%s/\<<C-r>=expand("<cword>")<cr>\>/
+nnoremap <space>S :%s/\<<c-r>=expand("<cword>")<cr>\>/
 
 # Number of matches on last search
 nnoremap <space>sn :%s///gn<cr>
@@ -683,7 +697,7 @@ nnoremap <space>sv /\%V
 xnoremap <space>d y:%s/<c-r>"//gc<cr>
 
 # Change directory to current file
-nnoremap <space>cd :cd %:p:h<cr>:pwd<cr>
+nnoremap <space>cd <Cmd>cd %:p:h <bar> pwd<cr>
 
 # Saner command-line history
 cnoremap <expr> <c-n> wildmenumode() ? "\<c-n>" : "\<down>"
@@ -703,7 +717,7 @@ nnoremap <space>> :cd %:p:h<cr>:find <C-D>
 xnoremap . :normal .<cr>
 
 # J counterpart
-nnoremap <silent>K :<c-u>call BreakHere()<cr>
+nnoremap <silent>K <ScriptCmd>BreakHere()<cr>
 
 # Regex-based text alignment
 xnoremap <silent><space>a :Align<cr>
@@ -733,34 +747,36 @@ if has("win32") && (&shell =~# '\<cmd\.exe$')
     tnoremap <silent><F12> %HOME%\cmdrc.bat<cr>
     nnoremap <silent><space><cr> :vert term<cr>%HOME%\cmdrc.bat<cr>
     nnoremap <silent><space><s-cr> :term<cr>%HOME%\cmdrc.bat<cr>
-    nnoremap <silent><space><c-cr> :tab :term<cr>%HOME%\cmdrc.bat<cr>
+    nnoremap <silent><space><c-cr> :tab term<cr>%HOME%\cmdrc.bat<cr>
 else
     nnoremap <silent><space><cr> :vert term<cr>
     nnoremap <silent><space><s-cr> :term<cr>
-    nnoremap <silent><space><c-cr> :tab :term<cr>
+    nnoremap <silent><space><c-cr> :tab term<cr>
 endif
 
 # Command mode
-cnoremap <c-e> <end>
 cnoremap <c-a> <home>
+cnoremap <c-e> <end>
 cnoremap <c-b> <left>
 cnoremap <c-f> <right>
-cnoremap <c-bs> <c-w>
-cnoremap <esc> <c-c><esc>
+cnoremap <c-k> <c-o>d$
 cnoremap <m-f> <S-right>
 cnoremap <m-b> <S-left>
+cnoremap <c-bs> <c-w>
+cnoremap <esc> <c-c><esc>
 
-# Insert mode (Emacs-ish)
-inoremap <c-bs> <c-w>
-inoremap <c-b> <left>
-inoremap <c-f> <right>
-inoremap <m-b> <c-left>
-inoremap <m-f> <c-right>
-inoremap <m-n> <c-o>j
-inoremap <m-p> <c-o>k
+# Insert mode (readline-style)
 inoremap <c-a> <home>
 inoremap <c-e> <end>
+inoremap <c-b> <left>
+inoremap <c-f> <right>
+inoremap <c-k> <c-o>d$
+inoremap <m-f> <c-right>
+inoremap <m-b> <c-left>
+inoremap <m-n> <c-o>j
+inoremap <m-p> <c-o>k
 inoremap <c-u> <c-g>u<c-u>
+inoremap <c-bs> <c-w>
 inoremap <silent><c-Up> <c-o>:<c-u>execute "keepjumps norm! " . v:count1 . "{"<cr>
 inoremap <silent><c-Down> <c-o>:<c-u>execute "keepjumps norm! " . v:count1 . "}"<cr>
 inoremap <s-Left> <Esc>v<c-g><Left>
@@ -780,6 +796,7 @@ nnoremap <silent> [W :lfirst<cr>
 
 # Buffer navigation
 nnoremap <bs> <c-^>
+nnoremap <silent><s-bs> :bn<cr>
 nnoremap <space>bn :bn<cr>
 nnoremap <space>bp :bp<cr>
 nnoremap <space>bd :bd<cr>
@@ -801,7 +818,7 @@ nnoremap <silent><c-Right> :vert res -3<cr>
 
 nnoremap <silent><space>wm <ScriptCmd>ToggleMaximizeSplit(v:true)<cr>
 
-# FZF (plugin)
+# FZF
 nnoremap <space>r :Rg<cr>
 nnoremap <space>ff :FZF<cr>
 nnoremap <space>fF :Files<cr>
@@ -813,9 +830,11 @@ nnoremap <space>fw :Windows<cr>
 nnoremap <space>fm :Marks<cr>
 nnoremap <space>fl :Lines<cr>
 nnoremap <space>fc :Colors<cr>
+nnoremap <space>fC :Commands<cr>
 nnoremap <space>ft :Filetypes<cr>
 # ! Opens in fullscreen
 nnoremap <space>R :Rg!<cr>
+nnoremap <space>FC :Commands!<cr>
 nnoremap <space>Ff :FZF!<cr>
 nnoremap <space>FF :Files!<cr>
 nnoremap <space>Fh :History!<cr>
@@ -824,14 +843,17 @@ nnoremap <space>Fl :Lines!<cr>
 # Toggles
 if has("gui_running")
     if has("win32")
-        nnoremap <silent><F11> :call libcallnr("vimtweak.dll", "ToggleFullScreen", 0)<cr>
+        nnoremap <m-c> <Plug>(Wintweak_Cpicker)
+        inoremap <m-c> <Esc><Plug>(Wintweak_Cpicker)
+        nnoremap <silent><m-cr> <Plug>(Wintweak_FullScreen)
+        nnoremap <silent><F11> <Plug>(Wintweak_FullScreen)
     endif
-    nnoremap <silent><F10> :vim9 popup_menu(['Light/Dark', 'Colors', 'Fonts', 'GUI Options'],
-             \ {filter: 'g:PopupMenuFilter', callback: 'g:Menuhandler', title: 'Options'})<cr>
-    nmap <F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<cr>
-    nmap <s-F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<cr>
-    nmap <c-ScrollWheelUp> <F12>
-    nmap <c-ScrollWheelDown> <s-F12>
+    nnoremap <silent><F10> <ScriptCmd>popup_menu(['Light/Dark', 'Colors', 'Fonts', 'GUI Options'],
+             \ {filter: 'PopupMenuFilter', callback: 'Menuhandler', title: 'Options'})<cr>
+    nmap <silent><F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<cr>
+    nmap <silent><s-F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<cr>
+    nmap <silent><c-ScrollWheelUp> <F12>
+    nmap <silent><c-ScrollWheelDown> <s-F12>
     nnoremap <silent><space>tb :if ScrollBar == 0 \| let ScrollBar = 1 \| set go+=r \| else \| let ScrollBar = 0 \| set go-=r \| endif<cr>
     nnoremap <silent><space>tg :if &guioptions == 'i' \| set go=imTrL \| else \| set go=i \| endif<cr>
     nmap <silent><c-z> <Plug>(Multiterm)
@@ -839,16 +861,19 @@ if has("gui_running")
 endif
 nnoremap <silent><c-q> :if empty(filter(getwininfo(), 'v:val.quickfix')) \| copen \| else \| cclose \| endif<cr>
 nnoremap <silent><space><space> <ScriptCmd>ToggleNetrw()<cr>
-nnoremap <silent><space>ti <ScriptCmd>ToggleIndentGuides()<cr>
+nnoremap <silent><space>t2 <Cmd>SetTab 2<cr>
+nnoremap <silent><space>t4 <Cmd>SetTab 4<cr>
+nnoremap <silent><space>t8 <Cmd>SetTab 8<cr>
 nnoremap <silent><space>tw :set wrap! wrap?<cr>
-nnoremap <silent><space>tl :set listchars=tab:\·\ ,space:·,precedes:<,extends:>,eol:¬<cr>:set list!<cr>
 nnoremap <silent><space>tn :set number! number?<cr>
+nnoremap <silent><space>tl :set listchars=tab:\·\ ,space:·,precedes:<,extends:>,eol:¬<cr>:set list!<cr>
 nnoremap <silent><space>tt :if &showtabline != 1 \| set showtabline=1 \| else \| set showtabline=2 \| endif<cr>
 nnoremap <silent><space>ts :if &laststatus == 2 \| set laststatus=0 \| else \| set laststatus=2 \| endif<cr>
 nnoremap <silent><space>tf :if &foldcolumn == 1 \| setlocal foldcolumn=0 \| else \| setlocal foldcolumn=1 \| endif<cr>
+nnoremap <silent><space>ti <ScriptCmd>ToggleIndentGuides()<cr>
 nnoremap <silent><space>tc <ScriptCmd>ToggleColorColumn()<cr>
 nnoremap <silent><space>tC <ScriptCmd>ToggleColorColumn(true)<cr>
 nnoremap <silent><space>th <ScriptCmd>LineHighlight()<cr>
-nnoremap <silent><space>tH :call clearmatches()<cr>
-nnoremap <silent><space>cc <ScriptCmd>InlineColors()<cr>
+nnoremap <silent><space>tH <ScriptCmd>clearmatches()<cr>
+nnoremap <silent><space>cc <ScriptCmd>ToggleInlineColors()<cr>
 nnoremap <silent><S-F11> <ScriptCmd>DistractionFree()<cr>
