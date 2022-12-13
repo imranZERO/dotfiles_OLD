@@ -2,10 +2,9 @@
 <opml version="2.0">
     <head>
         <title>QuiteRSS</title>
-        <dateModified>Mon Jul 25 21:22:25 2022</dateModified>
+        <dateModified>Sat Dec 3 18:57:54 2022</dateModified>
     </head>
     <body>
-        <outline text="QuiteRSS" type="rss" htmlUrl="http://quiterss.org/en/frontpage" xmlUrl="https://quiterss.org/en/rss.xml"/>
         <outline text="Cheapskates Guide" type="rss" htmlUrl="https://cheapskatesguide.org/" xmlUrl="https://cheapskatesguide.org/cheapskates-guide-rss-feed.xml"/>
         <outline text="Luke Smith" type="rss" htmlUrl="https://lukesmith.xyz/" xmlUrl="https://lukesmith.xyz/rss.xml"/>
         <outline text="It's FOSS" type="rss" htmlUrl="https://itsfoss.com" xmlUrl="https://itsfoss.com/feed/"/>
@@ -16,5 +15,11 @@
         <outline text="fabiensanglard.net" type="rss" htmlUrl="https://fabiensanglard.net" xmlUrl="https://fabiensanglard.net/rss.xml"/>
         <outline text="wwwtyro.net" type="rss" htmlUrl="https://wwwtyro.net" xmlUrl="https://wwwtyro.net/feed.xml"/>
         <outline text="cor3ntin" type="rss" htmlUrl="https://cor3ntin.github.io/" xmlUrl="https://cor3ntin.github.io/index.xml"/>
+        <outline text="null program" type="rss" htmlUrl="https://nullprogram.com" xmlUrl="https://nullprogram.com/feed/"/>
+        <outline text="The Witness" type="rss" htmlUrl="http://the-witness.net/news" xmlUrl="http://the-witness.net/news/feed/"/>
+        <outline text="Palladium" type="rss" htmlUrl="https://www.palladiummag.com/" xmlUrl="https://www.palladiummag.com/feed"/>
+        <outline text="a1k0n.net" type="rss" htmlUrl="http://www.a1k0n.net/" xmlUrl="https://www.a1k0n.net/atom.xml"/>
+        <outline text="Coding Horror" type="rss" htmlUrl="https://blog.codinghorror.com/" xmlUrl="https://blog.codinghorror.com/rss/"/>
+        <outline text="Pavel Fatin" type="rss" htmlUrl="https://pavelfatin.com" xmlUrl="https://pavelfatin.com/feed/"/>
     </body>
 </opml>

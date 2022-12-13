@@ -131,12 +131,13 @@ if has("gui_running")
         if result == 1
             &bg = (&bg == "dark" ? "light" : "dark")
         elseif result == 2
-            ColorSchemeMenu()
-        elseif result == 3
-            popup_menu(['Consolas', 'Terminus', 'Fira Mono', 'Victor Mono', 'JetBrains Mono', 'FixedSys'],
+            popup_menu(['Toggle Bold', 'Consolas', 'Terminus', 'Fira Mono', 'Victor Mono', 'JetBrains Mono',
+                     \ 'Ubuntu Mono', 'FixedSys'],
                      \ {filter: 'PopupMenuFilter', callback: 'GuiFontMenuhandler', title: 'Fonts'})
+        elseif result == 3
+            ColorSchemeMenu()
         elseif result == 4
-            wintweak#Wintweak()
+            Wintweak
         endif
     enddef
 
@@ -148,14 +149,24 @@ if has("gui_running")
         return popup_filter_menu(id, key)
     enddef
 
-    set guifont=jetbrains_mono_nl_regular:h11
+    set guifont=jetbrains_mono_nl_regular:h11 linespace=0
     def GuiFontMenuhandler(id: number, result: number)
-            if result == 1 | set guifont=Consolas:h11
-        elseif result == 2 | set guifont=Terminus:h11
-        elseif result == 3 | set guifont=Fira_Mono:h11
-        elseif result == 4 | set guifont=Victor_Mono:h11 linespace=1
-        elseif result == 5 | set guifont=jetbrains_mono_nl_regular:h11
-        elseif result == 6 | set guifont=FixedSys
+            if result == 1 | ToggleBoldFont()
+        elseif result == 2 | set guifont=Consolas:h11 linespace=1
+        elseif result == 3 | set guifont=Terminus:h11 linespace=1
+        elseif result == 4 | set guifont=Fira_Mono:h11 linespace=0
+        elseif result == 5 | set guifont=Victor_Mono:h11 linespace=1
+        elseif result == 6 | set guifont=jetbrains_mono_nl_regular:h11 linespace=0
+        elseif result == 7 | set guifont=Ubuntu_Mono:h12 linespace=1
+        elseif result == 8 | set guifont=FixedSys linespace=0
+        endif
+    enddef
+
+    def ToggleBoldFont()
+        if stridx(&guifont, ':b') >= 0
+            &guifont = trim(&guifont, ":b", 2)
+        else
+            &guifont = &guifont .. ':b'
         endif
     enddef
 
@@ -238,8 +249,9 @@ g:gruvbox_invert_selection = '0' #| g:gruvbox_italic = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
 colorscheme gruvbox | &bg = 'dark'
-# colorscheme cake16 | &bg = 'light'
 # colorscheme hybrid | &bg = 'dark'
+# colorscheme cake16 | &bg = 'light'
+# colorscheme zengarden | &bg = 'light' #| if has('gui_running') | ToggleBoldFont() | endif
 
 def ColorSchemeMenu()
     var schemes = getcompletion('', 'color')
@@ -500,25 +512,25 @@ g:cmode = {
     \ "r": "PROMPT", "rm": "MORE", "r?": "CONFIRM", "!": "SHELL", "t": "TERMINAL" }
 set statusline=%!Statusline()
 def g:Statusline(): string
-    var s = ''
-    s ..= ' %{g:cmode[mode()]} ' # Current mode
-    s ..= '%<' # Truncate
-    s ..= '%#StatusLineNC#' # Highlight
-    # s ..= ' [%n]' # Buffer number
-    # s ..= ' %t' # File name
-    # s ..= ' %f' # File path relative
-    s ..= ' %.40F' # File path full
+    var s = ' '
+    s ..= '%{g:cmode[mode()]} '  # Current mode
+    s ..= '%<'  # Truncate
+    s ..= '%#StatusLineNC#'  # Highlight
+    # s ..= ' [%n]'  # Buffer number
+    # s ..= ' %t'  # File name
+    # s ..= ' %f'  # File path relative
+    s ..= ' %.40F'  # File path full
     # s ..= ' [%{g:FileSize()}]'
-    # s ..= ' [%02p%%]' # Percentage
-    s ..= ' %r%m%h' # Readonly,modified,help
+    # s ..= ' ≣ %02p%%'  # Percentage
+    s ..= ' %r%m%h'  # Readonly,modified,help
     s ..= '%=' # Right align
-    s ..= '%{exists("g:loaded_fugitive")?FugitiveHead():""}' # Git branch
-    s ..= ' %*' # Default highlight
-    s ..= '%{exists("g:asyncdo")?"[running]":""}' # AsyncDo status
-    # s ..= ' %{strlen(&fenc)?&fenc:"none"} |' # File encoding
-    # s ..= ' %{&fileformat} |' # File format
-    s ..= ' %{strlen(&ft)?&ft:"none"} |' # Column:line/total
-    s ..= ' %02c:%3l/%L ' # Column:line/total
+    s ..= '%{exists("g:loaded_fugitive")?FugitiveHead():""}'  # Git branch
+    s ..= ' %*'  # Default highlight
+    s ..= '%{exists("g:asyncdo")?"[running]":""}'  # AsyncDo status
+    # s ..= ' %{strlen(&fenc)?&fenc:"none"} |'  # File encoding
+    # s ..= ' %{&fileformat} |'  # File format
+    s ..= ' %{strlen(&ft)?&ft:"none"} |'  # Column:line/total
+    s ..= ' %02c:%3l/%L '  # Column:line/total
     return s
 enddef
 
@@ -637,15 +649,13 @@ nnoremap <silent><c-d> <ScriptCmd>SmoothScroll('d', &scroll, 0, 2)<cr>
 nnoremap <silent><c-b> <ScriptCmd>SmoothScroll('u', &scroll * 2, 0, 4)<cr>
 nnoremap <silent><c-f> <ScriptCmd>SmoothScroll('d', &scroll * 2, 0, 4)<cr>
 
-nnoremap <space>G <Esc>:w<cr>
+nnoremap <space>G <Cmd>w<cr>
 nnoremap <silent><space>q :q<cr>
 tnoremap <silent><c-w>q exit<cr>
 nnoremap <silent><F7> <ScriptCmd>silent BuildFile()<cr>
 
 # Switching tabs
 nnoremap gr gT
-nnoremap <tab> gt
-nnoremap <s-tab> gT
 
 # Swap ` and ' for marks
 nnoremap ' `
@@ -659,7 +669,10 @@ nnoremap C "_C
 nnoremap Y y$
 
 # Clear search highlighting & refresh statusline
-nnoremap <silent><c-l> <Cmd>nohlsearch <bar> call Statusline()<cr><c-l>
+nnoremap <silent><c-l> <Cmd>nohlsearch <bar> set stl=%!Statusline()<cr><c-l>
+
+# Search within visual range
+xnoremap / <Esc>/\%V
 
 # Keeping it centered
 nnoremap n nzzzv
@@ -843,12 +856,12 @@ nnoremap <space>Fl :Lines!<cr>
 # Toggles
 if has("gui_running")
     if has("win32")
-        nnoremap <m-c> <Plug>(Wintweak_Cpicker)
-        inoremap <m-c> <Esc><Plug>(Wintweak_Cpicker)
-        nnoremap <silent><m-cr> <Plug>(Wintweak_FullScreen)
-        nnoremap <silent><F11> <Plug>(Wintweak_FullScreen)
+        nnoremap <m-c> <Cmd>WTCpicker<cr>
+        inoremap <m-c> <Esc><Cmd>WTCpicker<cr>
+        nnoremap <silent><m-cr> <Cmd>WTFullScreen<cr>
+        nnoremap <silent><F11> <Cmd>WTFullScreen<cr>
     endif
-    nnoremap <silent><F10> <ScriptCmd>popup_menu(['Light/Dark', 'Colors', 'Fonts', 'GUI Options'],
+    nnoremap <silent><F10> <ScriptCmd>popup_menu(['Light/Dark', 'Fonts', 'Colors', 'GUI Options'],
              \ {filter: 'PopupMenuFilter', callback: 'Menuhandler', title: 'Options'})<cr>
     nmap <silent><F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<cr>
     nmap <silent><s-F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<cr>
