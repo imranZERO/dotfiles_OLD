@@ -18,11 +18,11 @@ $GITCMD https://github.com/jpalardy/vim-slime.git
 $GITCMD https://github.com/fatih/vim-go.git
 $GITCMD https://github.com/mattn/emmet-vim.git
 $GITCMD https://github.com/habamax/vim-dir.git
+$GITCMD https://github.com/imranzero/smartpairs.vim.git
 $GITCMD https://github.com/imranzero/wintweak.gvim.git
 # $GITCMD https://github.com/lilydjwg/colorizer.git
 # $GITCMD https://github.com/justinmk/vim-sneak.git
 # $GITCMD https://github.com/junegunn/goyo.vim.git
-# $GITCMD https://github.com/gosukiwi/vim-smartpairs.git
 
 $GITCMD https://github.com/rafi/awesome-vim-colorschemes.git
 $GITCMD https://gitlab.com/protesilaos/tempus-themes.git

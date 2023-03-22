@@ -3,25 +3,22 @@ vim9script
 # O------------------------------------------------------------------O
 # |  Essentials                                                      |
 # O------------------------------------------------------------------O
-set nocompatible encoding=utf-8 hidden confirm
-\ path+=** noswapfile nobackup fileformats=unix,dos
-\ history=1024 magic secure hlsearch incsearch
-\ exrc wildmenu showcmd nomodeline noshowmode
-\ ignorecase smartcase autoindent smartindent
-\ autoread lazyredraw ttyfast splitbelow splitright
-\ notimeout ttimeout ttimeoutlen=200 nostartofline
-\ mouse=a laststatus=2 nrformats-=octal linespace=0
-\ shiftwidth=0 tabstop=4 softtabstop=4 expandtab
-\ breakindent showbreak=» foldcolumn=1 belloff=all
-\ scrolloff=6 sidescrolloff=12 sidescroll=1 cedit=\<c-y>
-\ nonumber numberwidth=5 fillchars=vert:\│, termguicolors
-\ backspace=indent,eol,start shortmess+=I shortmess-=S
+set nocompatible encoding=utf-8 hidden confirm secure exrc
+\ path+=** noswapfile nobackup fileformats=unix,dos nrformats-=octal
+\ nomodeline noshowmode hlsearch incsearch shortmess+=I shortmess-=S
+\ titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:~:.:h\")}/)%)\ %{getcwd()}\ @%{hostname()}
+\ autoread ttyfast lazyredraw notimeout ttimeout ttimeoutlen=200 belloff=all
+\ termguicolors mouse=a laststatus=2 showtabline=2 foldcolumn=1 linespace=0
+\ nonumber numberwidth=5 fillchars=vert:\│, cursorlineopt=screenline
+\ ignorecase smartcase nostartofline splitbelow splitright
+\ scrolloff=6 sidescrolloff=12 sidescroll=1 smoothscroll
+\ wildmenu wildmode=full wildoptions=fuzzy,pum,tagfile
+\ noexpandtab shiftwidth=0 tabstop=4 softtabstop=4
+\ autoindent smartindent breakindent showbreak=»
+\ history=1024 cedit=\<c-y> completeopt=menu,menuone,preview
+\ commentstring=#\ %s backspace=indent,eol,start virtualedit=block
 \ listchars=tab:\·\ ,space:·,precedes:<,extends:>,eol:¬
-\ virtualedit=block cursorlineopt=screenline commentstring=#\ %s
-\ wildignore=*.o,*.pyc,*.dll,*.png,*.jpg,*.gif,*.pdf
-\ wildmode=full wildoptions=fuzzy,pum,tagfile title
-\ titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:~:.:h\")}/)%)
-\ titlestring+=\ %{getcwd()}\ @%{hostname()}
+\ wildignore=*.o,*.pyc,*.dll,*.png,*.jpg,*.webp,*.gif,*.pdf
 
 # O------------------------------------------------------------------O
 # |  Plugins (with VIM8+ plugin manager)                             |
@@ -30,7 +27,6 @@ set nocompatible encoding=utf-8 hidden confirm
 def Load_Plugins(t: number)
     packadd fzf | packadd fzf.vim       # junegunn/fzf
         g:fzf_layout = { 'down': '50%' }
-        g:fzf_colors = { 'border': ['fg', 'Ignore'] }
         augroup FZF | autocmd!
             autocmd FileType fzf set laststatus=0
             \| autocmd BufLeave <buffer> set laststatus=2
@@ -53,6 +49,7 @@ def Load_Plugins(t: number)
     packadd multiterm.vim               # chengzeyi/multiterm.vim
     packadd vim-commentary              # tpope/vim-commentary
     packadd vim-dir                     # habamax/vim-dir
+    packadd smartpairs.vim              # imranzero/smartpairs.vim
     packadd wintweak.gvim               # imranzero/wintweak.gvim
 enddef
 augroup USER_CMDS | autocmd!
@@ -73,7 +70,7 @@ g:loaded_vimballPlugin = 1 | g:loaded_vimball = true
 filetype indent plugin on | syntax enable syntax on
 
 # O------------------------------------------------------------------O
-# |  Filetype Settings                                               |
+# |  Filetype specific settings                                      |
 # O------------------------------------------------------------------O
 augroup FILETYPE_C | autocmd!
     autocmd FileType c,cpp
@@ -111,33 +108,50 @@ def A(cmd: string)
     endfor
 enddef
 
-def BuildFile()
-    exec "w"
-    if &filetype == 'python'   | exec "vert term python %"
-    elseif &filetype == 'lua'  | exec "vert term lua %"
-    elseif &filetype == 'lisp' | exec "vert term sbcl --script %"
-    elseif &filetype == 'make' | exec "Make!" # ! prevents jumping to location of first error
-    elseif &filetype == 'c'    | exec "Make!"
-    elseif &filetype == 'cpp'  | exec "Make!"
-    elseif &filetype == 'go'   | exec "Make!"
+def Run()
+    exec "update"
+    if &ft == 'javascript' | set makeprg=node   | exec "Make! %"
+    elseif &ft == 'python' | set makeprg=python | exec "Make! %"
+    elseif &ft == 'lua'    | set makeprg=lua    | exec "Make! %"
+    elseif &ft == 'lisp'   | set makeprg=sbcl   | exec "Make! --script %"
+    elseif &ft == 'go'     | set makeprg=go     | exec "Make! run %"
+    endif
+enddef
+
+def Format()
+    if &ft == 'c' || &ft == 'cpp' | set makeprg=astyle
+        var a1 = "--style=kr --indent=tab --convert-tabs --break-blocks --pad-oper --pad-header"
+        var a2 = "--unpad-paren --align-pointer=name --attach-return-type --indent-preproc-block"
+        var a3 = "--max-code-length=80 --break-after-logical --suffix=none"
+        exec "Make" a1 a2 a3 "%"
+    elseif &ft == 'go' | set makeprg=gofmt | exec "Make -s -w %"
+    elseif &ft == 'javascript' | set makeprg=js-beautify | exec "Make -rn -t %"
+    elseif &ft == 'html' | set makeprg=html-beautify | exec "Make -rn -t %"
+    elseif &ft == 'css' | set makeprg=css-beautify | exec "Make -rn -t %"
+    endif
+enddef
+
+def Build()
+    exec "update"
+    if &ft == 'make' || &ft == 'c' || &ft == 'cpp' || &ft == 'go'
+        set makeprg=make | exec "Make!" | # ! prevents jumping to location of first error
     endif
 enddef
 
 # O------------------------------------------------------------------O
-# |  Gui                                                             |
+# |  GUI                                                             |
 # O------------------------------------------------------------------O
 if has("gui_running")
     def Menuhandler(id: number, result: number)
-        if result == 1
-            &bg = (&bg == "dark" ? "light" : "dark")
-        elseif result == 2
-            popup_menu(['Toggle Bold', 'Consolas', 'Terminus', 'Fira Mono', 'Victor Mono', 'JetBrains Mono',
-                     \ 'Ubuntu Mono', 'FixedSys'],
-                     \ {filter: 'PopupMenuFilter', callback: 'GuiFontMenuhandler', title: 'Fonts'})
-        elseif result == 3
-            ColorSchemeMenu()
-        elseif result == 4
-            Wintweak
+        if     result == 1 | &bg = (&bg == "dark" ? "light" : "dark")
+        elseif result == 2 | Wintweak
+        elseif result == 3 | popup_menu(['-Toggle Bold-', 'Consolas', 'Terminus', 'Fira Mono',
+            \ 'Victor Mono', 'Iosevka Fixed', 'JetBrains Mono', 'Ubuntu Mono', 'Comic Mono',
+            \ 'FixedSys'],
+            \ {filter: 'PopupMenuFilter', callback: 'FontMenu', title: 'Fonts'})
+        elseif result == 4 | ColorSchemeMenu()
+        elseif result == 5 | DistractionFree()
+        elseif result == 6 | ToggleInlineColors()
         endif
     enddef
 
@@ -149,19 +163,6 @@ if has("gui_running")
         return popup_filter_menu(id, key)
     enddef
 
-    set guifont=jetbrains_mono_nl_regular:h11 linespace=0
-    def GuiFontMenuhandler(id: number, result: number)
-            if result == 1 | ToggleBoldFont()
-        elseif result == 2 | set guifont=Consolas:h11 linespace=1
-        elseif result == 3 | set guifont=Terminus:h11 linespace=1
-        elseif result == 4 | set guifont=Fira_Mono:h11 linespace=0
-        elseif result == 5 | set guifont=Victor_Mono:h11 linespace=1
-        elseif result == 6 | set guifont=jetbrains_mono_nl_regular:h11 linespace=0
-        elseif result == 7 | set guifont=Ubuntu_Mono:h12 linespace=1
-        elseif result == 8 | set guifont=FixedSys linespace=0
-        endif
-    enddef
-
     def ToggleBoldFont()
         if stridx(&guifont, ':b') >= 0
             &guifont = trim(&guifont, ":b", 2)
@@ -170,8 +171,23 @@ if has("gui_running")
         endif
     enddef
 
+    def FontMenu(id: number, result: number)
+        if     result ==  1 | ToggleBoldFont()
+        elseif result ==  2 | set linespace=1 guifont=Consolas:h11
+        elseif result ==  3 | set linespace=1 guifont=Terminus:h11
+        elseif result ==  4 | set linespace=0 guifont=Fira_Mono:h11
+        elseif result ==  5 | set linespace=1 guifont=Victor_Mono:h11
+        elseif result ==  6 | set linespace=1 guifont=Iosevka_Fixed:h11
+        elseif result ==  7 | set linespace=0 guifont=Jetbrains_Mono_NL_Regular:h11
+        elseif result ==  8 | set linespace=1 guifont=Ubuntu_Mono:h12
+        elseif result ==  9 | set linespace=1 guifont=Comic_Mono
+        elseif result == 10 | set linespace=0 guifont=FixedSys
+        endif
+    enddef
+    FontMenu(0, 6)
+
     g:ScrollBar = 0
-    set guioptions=i
+    set guioptions=!ic
 
     set guicursor=i-c-ci:hor10-Cursor/lCursor
     # set guicursor=n-v-c:hor30-Cursor/lCursor,ve:ver35-Cursor,o:hor50-Cursor
@@ -248,8 +264,9 @@ enddef
 g:gruvbox_invert_selection = '0' #| g:gruvbox_italic = '0'
 g:gruvbox_contrast_light = 'hard' | g:gruvbox_contrast_dark = 'medium'
 
-colorscheme gruvbox | &bg = 'dark'
+# colorscheme gruvbox | &bg = 'dark'
 # colorscheme hybrid | &bg = 'dark'
+colorscheme flattened | &bg = 'light'
 # colorscheme cake16 | &bg = 'light'
 # colorscheme zengarden | &bg = 'light' #| if has('gui_running') | ToggleBoldFont() | endif
 
@@ -257,13 +274,13 @@ def ColorSchemeMenu()
     var schemes = getcompletion('', 'color')
     def KeyHandler(id: number, key: string): bool
         var menuline = line('.', id)
-        if key == "\<Enter>" || key == 'l'
+        if key == "\<Enter>" || key == "l"
             execute 'colo' schemes[menuline - 1]
-        elseif key == 'j'
+        elseif key == "j" || key == "\<Down>"
             win_execute(id, 'normal! j')
-        elseif key == 'k'
+        elseif key == "k" || key == "\<UP>"
             win_execute(id, 'normal! k')
-        elseif key == "\<Esc>" || key == 'x' || key == 'q'
+        elseif key == "\<Esc>" || key == "x" || key == "q"
             popup_close(id)
         endif
         return true
@@ -272,7 +289,7 @@ def ColorSchemeMenu()
         maxheight: 20,
         minwidth: 20,
         cursorline: true,
-        padding: [1, 2, 1, 2],
+        border: [],
         filter: KeyHandler,
     })
 enddef
@@ -329,7 +346,7 @@ def ToggleNetrw()
         g:NetrwIsOpen = 0
     else
         g:NetrwIsOpen = 1
-        silent Vexplore
+        silent Vexplore!  # ! uses the right side
     endif
 enddef
 def g:NetrwMapping()
@@ -415,6 +432,29 @@ def DistractionFree()
     endif
 enddef
 
+def BufferMenu()
+    var buffers = getcompletion('', 'buffer')
+    def KeyHandler(id: number, key: string): bool
+        var menuline = line('.', id)
+        if key == "\<Enter>" || key == "l"
+            execute 'buffer' buffers[menuline - 1]
+            popup_close(id)
+        elseif key == "j" || key == "\<Down>"
+            win_execute(id, 'normal! j')
+        elseif key == "k" || key == "\<UP>"
+            win_execute(id, 'normal! k')
+        elseif key == "\<Esc>" || key == "x" || key == "q"
+            popup_close(id)
+        endif
+        return true
+    enddef
+    popup_create(buffers, {
+        filter: KeyHandler,
+        cursorline: true,
+        padding: [1, 2, 1, 2],
+    })
+enddef
+
 # Toggle colorcolumn at cursor position & set vartabstop accordingly
 def ToggleColorColumn(all: bool = false)
     if all
@@ -453,21 +493,17 @@ enddef
 command! -nargs=1 SetTab SetTab(<args>)
 def SetTab(n: number)
     &tabstop = n | &softtabstop = n | &shiftwidth = n
-    set expandtab
+    set noexpandtab
 enddef
 
 def g:FileSize(): string
     var bytes = getfsize(expand('%:p'))
-    if (bytes <= 0)
-        return ''
-    endif
-    if (bytes >= 1024)
-        return bytes / 1024 .. 'kB'
-    endif
+    if (bytes <= 0) | return '' | endif
+    if (bytes >= 1024) | return bytes / 1024 .. 'kB' | endif
     return bytes .. 'B'
 enddef
 
-set tabline=%!MyTabline()
+set tabline=%!Tabline()
 def GetCurrBufNames(tabCount: number): dict<any>
     var bufNames = {}
     for i in range(tabCount)
@@ -481,7 +517,7 @@ def GetCurrBufNames(tabCount: number): dict<any>
     endfor
     return bufNames
 enddef
-def g:MyTabline(): string
+def g:Tabline(): string
     var s = ''
     var tabCount = tabpagenr('$') | var bufNames = GetCurrBufNames(tabCount)
     for i in range(tabCount)
@@ -499,9 +535,7 @@ def g:MyTabline(): string
         s ..= '%' .. tabNum .. '  [' .. tabNum .. '] ' .. fname .. ' '
         s ..= bufmodified == 1 ? '+ ' : ''
     endfor
-    s ..= '%*' .. '%=' .. '%#Normal#' #.. ' %{resolve(expand("%:p"))}%*' .. '%#Normal#'
-    s ..= ' [%{toupper(&fileformat)}]' .. ' [%{toupper(strlen(&fenc)?&fenc:"none")}]'
-    s ..= ' [%{g:FileSize()}]'
+    s ..= '%*' .. '%<' .. '%=' .. '%#StatusLine#' .. ' %{resolve(expand("%:p:h"))} %*'
     return s
 enddef
 
@@ -517,19 +551,19 @@ def g:Statusline(): string
     s ..= '%<'  # Truncate
     s ..= '%#StatusLineNC#'  # Highlight
     # s ..= ' [%n]'  # Buffer number
-    # s ..= ' %t'  # File name
+    s ..= ' %t'  # File name
     # s ..= ' %f'  # File path relative
-    s ..= ' %.40F'  # File path full
-    # s ..= ' [%{g:FileSize()}]'
+    # s ..= ' %.50F'  # File path full (with char limit)
+    s ..= ' [%{&fileformat}]'  # File format
+    s ..= ' [%{strlen(&fenc)?&fenc:"none"}]'  # File encoding
+    s ..= ' [%{g:FileSize()}]'
     # s ..= ' ≣ %02p%%'  # Percentage
     s ..= ' %r%m%h'  # Readonly,modified,help
     s ..= '%=' # Right align
     s ..= '%{exists("g:loaded_fugitive")?FugitiveHead():""}'  # Git branch
     s ..= ' %*'  # Default highlight
     s ..= '%{exists("g:asyncdo")?"[running]":""}'  # AsyncDo status
-    # s ..= ' %{strlen(&fenc)?&fenc:"none"} |'  # File encoding
-    # s ..= ' %{&fileformat} |'  # File format
-    s ..= ' %{strlen(&ft)?&ft:"none"} |'  # Column:line/total
+    s ..= ' %{strlen(&ft)?&ft:"none"} |'  # File type
     s ..= ' %02c:%3l/%L '  # Column:line/total
     return s
 enddef
@@ -538,9 +572,9 @@ augroup CLEAR_JUMPLIST | autocmd!
     autocmd VimEnter * exe 'clearjumps'
 augroup end
 
-augroup WINRESIZE | autocmd!
-    autocmd VimResized * wincmd =
-augroup end
+# augroup WINRESIZE | autocmd!
+#     autocmd VimResized * wincmd =
+# augroup end
 
 # :t to :tabe
 cnoreabbrev <expr> t getcmdtype() == ":" && getcmdline() == 't' ? 'tabe' : 't'
@@ -613,7 +647,7 @@ enddef
 # autocmd ModeChanged *:[vV\x16]* set list
 # autocmd ModeChanged [vV\x16]*:* set nolist
 
-# Remove all trailing whitespace and newlines at end of file & reset cursor position
+# Remove trailing whitespace and newlines at end of file & reset cursor position
 var currPos = getpos(".")
 def StripWhitespace()
     if &ft =~ 'markdown\|org'   # Excluded filetypes
@@ -632,6 +666,11 @@ augroup end
 # |  Mappings                                                        |
 # O------------------------------------------------------------------O
 inoremap <m-i> <Esc>
+nnoremap <m-i> <Esc>
+vnoremap <m-i> <Esc>
+
+nnoremap <2-LeftMouse> i
+inoremap <2-LeftMouse> <Esc>
 
 nnoremap <m-j> 5j
 nnoremap <m-k> 5k
@@ -640,6 +679,8 @@ vnoremap <m-k> 5k
 
 nnoremap gh 0
 nnoremap gl $
+
+nnoremap gr gT
 
 noremap L <ScriptCmd>MapL()<cr>
 noremap H <ScriptCmd>MapH()<cr>
@@ -652,10 +693,9 @@ nnoremap <silent><c-f> <ScriptCmd>SmoothScroll('d', &scroll * 2, 0, 4)<cr>
 nnoremap <space>G <Cmd>w<cr>
 nnoremap <silent><space>q :q<cr>
 tnoremap <silent><c-w>q exit<cr>
-nnoremap <silent><F7> <ScriptCmd>silent BuildFile()<cr>
-
-# Switching tabs
-nnoremap gr gT
+nnoremap <silent><F5> <ScriptCmd>silent Run()<cr>
+nnoremap <silent><F6> <ScriptCmd>silent! Format()<cr>
+nnoremap <silent><F7> <ScriptCmd>silent Build()<cr>
 
 # Swap ` and ' for marks
 nnoremap ' `
@@ -674,12 +714,15 @@ nnoremap <silent><c-l> <Cmd>nohlsearch <bar> set stl=%!Statusline()<cr><c-l>
 # Search within visual range
 xnoremap / <Esc>/\%V
 
+# Single yank and multiple pastes over selection
+xnoremap p P
+
 # Keeping it centered
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
-# Reselect the last selection
-nnoremap <space>gv `[v`]
+# Reselect the last paste
+nnoremap gp `[v`]
 
 # Don't lose selection when shifting sidewards
 xnoremap < <gv^
@@ -735,19 +778,6 @@ nnoremap <silent>K <ScriptCmd>BreakHere()<cr>
 # Regex-based text alignment
 xnoremap <silent><space>a :Align<cr>
 
-# Auto-insert closing parenthesis/brace/quotes
-inoremap ( ()<C-G>U<Left>
-inoremap { {}<C-G>U<Left>
-inoremap [ []<C-G>U<Left>
-inoremap ' ''<Left>
-inoremap " ""<Left>
-# Expand opening-brace followed by ENTER to a block and place cursor inside
-inoremap {<cr> {<cr>}<Esc>O
-# Skip over closing parenthesis/brace/bracket
-inoremap <expr> ) getline('.')[col('.') - 1] == ")" ? "\<Right>" : ")"
-inoremap <expr> } getline('.')[col('.') - 1] == "}" ? "\<Right>" : "}"
-inoremap <expr> ] getline('.')[col('.') - 1] == "]" ? "\<Right>" : "]"
-
 # Terminal mode
 if has("win32") && (&shell =~# '\<cmd\.exe$')
     tnoremap <silent><C-p> <up>
@@ -784,14 +814,15 @@ inoremap <c-e> <end>
 inoremap <c-b> <left>
 inoremap <c-f> <right>
 inoremap <c-k> <c-o>d$
+inoremap <c-d> <del>
 inoremap <m-f> <c-right>
 inoremap <m-b> <c-left>
 inoremap <m-n> <c-o>j
 inoremap <m-p> <c-o>k
 inoremap <c-u> <c-g>u<c-u>
 inoremap <c-bs> <c-w>
-inoremap <silent><c-Up> <c-o>:<c-u>execute "keepjumps norm! " . v:count1 . "{"<cr>
-inoremap <silent><c-Down> <c-o>:<c-u>execute "keepjumps norm! " . v:count1 . "}"<cr>
+inoremap <silent><c-up> <c-o>:<c-u>exec "keepjumps norm! " . v:count1 . "{"<cr>
+inoremap <silent><c-down> <c-o>:<c-u>exe "keepjumps norm! " . v:count1 . "}"<cr>
 inoremap <s-Left> <Esc>v<c-g><Left>
 inoremap <s-Right> <Esc>v<c-g><Right>
 inoremap <c-s> <Esc>:w<cr>a
@@ -815,7 +846,8 @@ nnoremap <space>bp :bp<cr>
 nnoremap <space>bd :bd<cr>
 nnoremap <space>bw :bw<cr>
 nnoremap <silent><space>bo <ScriptCmd>WipeHiddenBuffers()<cr>
-nnoremap <space>, :buffers<cr>:buffer<Space>
+nnoremap <space>, <ScriptCmd>BufferMenu()<cr>
+nnoremap <space>< :buffers<cr>:buffer<Space>
 
 # Split navigation
 nnoremap <space>w <c-w>
@@ -828,7 +860,6 @@ nnoremap <silent><c-Up> :res +3<cr>
 nnoremap <silent><c-Down> :res -3<cr>
 nnoremap <silent><c-Left> :vert res +3<cr>
 nnoremap <silent><c-Right> :vert res -3<cr>
-
 nnoremap <silent><space>wm <ScriptCmd>ToggleMaximizeSplit(v:true)<cr>
 
 # FZF
@@ -857,18 +888,18 @@ nnoremap <space>Fl :Lines!<cr>
 if has("gui_running")
     if has("win32")
         nnoremap <m-c> <Cmd>WTCpicker<cr>
-        inoremap <m-c> <Esc><Cmd>WTCpicker<cr>
+        inoremap <m-c> <Cmd>WTCpicker<cr>
         nnoremap <silent><m-cr> <Cmd>WTFullScreen<cr>
         nnoremap <silent><F11> <Cmd>WTFullScreen<cr>
     endif
-    nnoremap <silent><F10> <ScriptCmd>popup_menu(['Light/Dark', 'Fonts', 'Colors', 'GUI Options'],
+    nnoremap <silent><F10> <ScriptCmd>popup_menu(['Light/Dark', 'WinTweak', 'Fonts', 'Colors', 'Zen Mode', 'CSS Colors'],
              \ {filter: 'PopupMenuFilter', callback: 'Menuhandler', title: 'Options'})<cr>
     nmap <silent><F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)+1', '')<cr>
     nmap <silent><s-F12> :let &guifont = substitute(&guifont, '\d\+$', '\=submatch(0)-1', '')<cr>
     nmap <silent><c-ScrollWheelUp> <F12>
     nmap <silent><c-ScrollWheelDown> <s-F12>
     nnoremap <silent><space>tb :if ScrollBar == 0 \| let ScrollBar = 1 \| set go+=r \| else \| let ScrollBar = 0 \| set go-=r \| endif<cr>
-    nnoremap <silent><space>tg :if &guioptions == 'i' \| set go=imTrL \| else \| set go=i \| endif<cr>
+    nnoremap <silent><space>tg :if &guioptions == '!ic' \| set go=!imTrL \| else \| set go=!ic \| endif<cr>
     nmap <silent><c-z> <Plug>(Multiterm)
     tmap <silent><c-z> <Plug>(Multiterm)
 endif
@@ -884,9 +915,9 @@ nnoremap <silent><space>tt :if &showtabline != 1 \| set showtabline=1 \| else \|
 nnoremap <silent><space>ts :if &laststatus == 2 \| set laststatus=0 \| else \| set laststatus=2 \| endif<cr>
 nnoremap <silent><space>tf :if &foldcolumn == 1 \| setlocal foldcolumn=0 \| else \| setlocal foldcolumn=1 \| endif<cr>
 nnoremap <silent><space>ti <ScriptCmd>ToggleIndentGuides()<cr>
-nnoremap <silent><space>tc <ScriptCmd>ToggleColorColumn()<cr>
-nnoremap <silent><space>tC <ScriptCmd>ToggleColorColumn(true)<cr>
+nnoremap <silent><space>tc <ScriptCmd>ToggleInlineColors()<cr>
 nnoremap <silent><space>th <ScriptCmd>LineHighlight()<cr>
 nnoremap <silent><space>tH <ScriptCmd>clearmatches()<cr>
-nnoremap <silent><space>cc <ScriptCmd>ToggleInlineColors()<cr>
+nnoremap <silent><space>cc <ScriptCmd>ToggleColorColumn()<cr>
+nnoremap <silent><space>cC <ScriptCmd>ToggleColorColumn(true)<cr>
 nnoremap <silent><S-F11> <ScriptCmd>DistractionFree()<cr>
