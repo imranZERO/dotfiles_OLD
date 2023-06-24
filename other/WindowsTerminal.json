@@ -4,24 +4,7 @@
     "actions": 
     [
         {
-            "command": 
-            {
-                "action": "copy",
-                "singleLine": false
-            },
-            "keys": "ctrl+c"
-        },
-        {
-            "command": 
-            {
-                "action": "splitPane",
-                "split": "right"
-            },
-            "keys": "alt+s"
-        },
-        {
-            "command": "paste",
-            "keys": "ctrl+v"
+            "command": "toggleFocusMode"
         },
         {
             "command": 
@@ -34,6 +17,14 @@
         {
             "command": "closePane",
             "keys": "ctrl+shift+w"
+        },
+        {
+            "command": 
+            {
+                "action": "resizePane",
+                "direction": "right"
+            },
+            "keys": "alt+shift+l"
         },
         {
             "command": "unbound",
@@ -128,15 +119,48 @@
             "keys": "ctrl+shift+q"
         },
         {
+            "command": "unbound",
+            "keys": "ctrl+v"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "auto",
+                "splitMode": "duplicate"
+            },
+            "keys": "alt+shift+d"
+        },
+        {
+            "command": "paste"
+        },
+        {
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "right"
+            },
+            "keys": "alt+s"
+        },
+        {
+            "command": 
+            {
+                "action": "copy",
+                "singleLine": false
+            },
+            "keys": "ctrl+c"
+        },
+        {
             "command": "find",
             "keys": "ctrl+shift+f"
         },
         {
             "command": 
             {
-                "action": "scrollDown"
+                "action": "resizePane",
+                "direction": "left"
             },
-            "keys": "alt+n"
+            "keys": "alt+shift+h"
         },
         {
             "command": 
@@ -144,6 +168,13 @@
                 "action": "commandPalette"
             },
             "keys": "ctrl+shift+p"
+        },
+        {
+            "command": 
+            {
+                "action": "scrollDown"
+            },
+            "keys": "alt+n"
         },
         {
             "command": 
@@ -171,34 +202,6 @@
         {
             "command": "closeWindow",
             "keys": "alt+f4"
-        },
-        {
-            "command": 
-            {
-                "action": "resizePane",
-                "direction": "right"
-            },
-            "keys": "alt+shift+l"
-        },
-        {
-            "command": 
-            {
-                "action": "splitPane",
-                "split": "auto",
-                "splitMode": "duplicate"
-            },
-            "keys": "alt+shift+d"
-        },
-        {
-            "command": "toggleFocusMode"
-        },
-        {
-            "command": 
-            {
-                "action": "resizePane",
-                "direction": "left"
-            },
-            "keys": "alt+shift+h"
         }
     ],
     "alwaysShowTabs": true,
@@ -206,10 +209,20 @@
     "copyOnSelect": false,
     "defaultProfile": "{ff4fc5b7-5fae-457d-9cf7-8c9a53513560}",
     "experimental.rendering.software": false,
+    "firstWindowPreference": "defaultProfile",
     "launchMode": "maximized",
+    "newTabMenu": 
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
     "profiles": 
     {
-        "defaults": {},
+        "defaults": 
+        {
+            "useAtlasEngine": true
+        },
         "list": 
         [
             {
@@ -218,7 +231,7 @@
                 "font": 
                 {
                     "face": "JetBrains Mono NL",
-                    "size": 11
+                    "size": 11.0
                 },
                 "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
                 "hidden": false,
@@ -227,7 +240,7 @@
             },
             {
                 "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
-                "hidden": false,
+                "hidden": true,
                 "name": "Azure Cloud Shell",
                 "source": "Windows.Terminal.Azure"
             },
@@ -238,11 +251,11 @@
                 "font": 
                 {
                     "face": "JetBrains Mono NL",
-                    "size": 10
+                    "size": 10.0
                 },
                 "guid": "{1df0f8ec-a145-573d-b389-1569c2622ebb}",
-                "icon": null,
-                "name": "Bash",
+                "icon": "C:\\dev\\git\\usr\\share\\git\\git-for-windows.ico",
+                "name": "Git Bash",
                 "padding": "0"
             },
             {
@@ -250,19 +263,48 @@
                 "antialiasingMode": "grayscale",
                 "closeOnExit": "graceful",
                 "colorScheme": "Gruvbox Dark",
-                "commandline": "%SystemRoot%\\System32\\cmd.exe",
+                "commandline": "cmd.exe /k %HOME%\\cmdrc.bat",
                 "cursorShape": "vintage",
-                "elevate": true,
+                "elevate": false,
                 "font": 
                 {
-                    "face": "Consolas",
-                    "size": 12
+                    "face": "Input",
+                    "size": 12.0
                 },
                 "guid": "{ff4fc5b7-5fae-457d-9cf7-8c9a53513560}",
                 "hidden": false,
                 "historySize": 9001,
                 "icon": "ms-appx:///ProfileIcons/{0caa0dad-35be-5f56-a8ff-afceeeaa6101}.png",
-                "name": "Command Prompt",
+                "name": "Clink",
+                "opacity": 100,
+                "padding": "0",
+                "snapOnInput": true,
+                "startingDirectory": "%USERPROFILE%",
+                "useAcrylic": false
+            },
+            {
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": false,
+                "name": "Command Prompt"
+            },
+            {
+                "altGrAliasing": true,
+                "antialiasingMode": "grayscale",
+                "closeOnExit": "graceful",
+                "colorScheme": "Gruvbox Dark",
+                "commandline": "C:/dev/msys64/msys2_shell.cmd -defterm -here -no-start -ucrt64",
+                "cursorShape": "vintage",
+                "elevate": true,
+                "font": 
+                {
+                    "face": "Consolas",
+                    "size": 12.0
+                },
+                "guid": "{16d28421-6fc5-42d9-bc06-0115e997d76f}",
+                "hidden": false,
+                "historySize": 9001,
+                "icon": "D:\\dev\\msys64\\ucrt64.ico",
+                "name": "MSYS ucrt64",
                 "padding": "0",
                 "snapOnInput": true,
                 "startingDirectory": "%USERPROFILE%",
@@ -272,6 +314,52 @@
     },
     "schemes": 
     [
+        {
+            "background": "#F7F7F7",
+            "black": "#090300",
+            "blue": "#01A0E4",
+            "brightBlack": "#5C5855",
+            "brightBlue": "#807D7C",
+            "brightCyan": "#CDAB53",
+            "brightGreen": "#3A3432",
+            "brightPurple": "#D6D5D4",
+            "brightRed": "#E8BBD0",
+            "brightWhite": "#F7F7F7",
+            "brightYellow": "#4A4543",
+            "cursorColor": "#4A4543",
+            "cyan": "#B5E4F4",
+            "foreground": "#4A4543",
+            "green": "#01A252",
+            "name": "3024 Day",
+            "purple": "#A16A94",
+            "red": "#DB2D20",
+            "selectionBackground": "#A5A2A2",
+            "white": "#A5A2A2",
+            "yellow": "#FDED02"
+        },
+        {
+            "background": "#2A1F1D",
+            "black": "#573D26",
+            "blue": "#5A86AD",
+            "brightBlack": "#9B6C4A",
+            "brightBlue": "#B8D3ED",
+            "brightCyan": "#93CFD7",
+            "brightGreen": "#95D8BA",
+            "brightPurple": "#D19ECB",
+            "brightRed": "#E84627",
+            "brightWhite": "#FFF9D5",
+            "brightYellow": "#D0D150",
+            "cursorColor": "#573D26",
+            "cyan": "#74A6AD",
+            "foreground": "#E0DBB7",
+            "green": "#6BA18A",
+            "name": "BirdsOfParadise",
+            "purple": "#AC80A6",
+            "red": "#BE2D26",
+            "selectionBackground": "#563C27",
+            "white": "#E0DBB7",
+            "yellow": "#E99D2A"
+        },
         {
             "background": "#0C0C0C",
             "black": "#0C0C0C",
@@ -424,7 +512,7 @@
             "brightYellow": "#657B83",
             "cursorColor": "#002B36",
             "cyan": "#2AA198",
-            "foreground": "#657B83",
+            "foreground": "#073642",
             "green": "#859900",
             "name": "Solarized Light",
             "purple": "#D33682",
@@ -501,9 +589,77 @@
             "selectionBackground": "#FFFFFF",
             "white": "#C0C0C0",
             "yellow": "#808000"
+        },
+        {
+            "background": "#F0EDEC",
+            "black": "#F0EDEC",
+            "blue": "#286486",
+            "brightBlack": "#CFC1BA",
+            "brightBlue": "#1D5573",
+            "brightCyan": "#2B747C",
+            "brightGreen": "#3F5A22",
+            "brightPurple": "#7B3B70",
+            "brightRed": "#94253E",
+            "brightWhite": "#4F5E68",
+            "brightYellow": "#803D1C",
+            "cursorColor": "#2C363C",
+            "cyan": "#3B8992",
+            "foreground": "#2C363C",
+            "green": "#4F6C31",
+            "name": "zenbones",
+            "purple": "#88507D",
+            "red": "#A8334C",
+            "selectionBackground": "#CBD9E3",
+            "white": "#2C363C",
+            "yellow": "#944927"
         }
     ],
     "showTabsInTitlebar": true,
     "theme": "dark",
+    "themes": 
+    [
+        {
+            "name": "legacyDark",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "dark",
+                "useMica": false
+            }
+        },
+        {
+            "name": "legacyLight",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "light",
+                "useMica": false
+            }
+        },
+        {
+            "name": "legacySystem",
+            "tab": 
+            {
+                "background": null,
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "window": 
+            {
+                "applicationTheme": "system",
+                "useMica": false
+            }
+        }
+    ],
     "wordDelimiters": " /\\()\"'-.,:;<>~!@#$%^&*|+=[]{}~?\u2502"
 }

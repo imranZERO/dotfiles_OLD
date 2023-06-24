@@ -81,6 +81,7 @@ augroup END
 
 augroup FILETYPE_GO | autocmd!
     # packadd vim-go          # fatih/vim-go
+    packadd vim-go-syntax     # charlespascoe/vim-go-syntax
     autocmd FileType go setlocal noexpandtab
 augroup END
 
@@ -115,6 +116,7 @@ def Run()
     elseif &ft == 'lua'    | set makeprg=lua    | exec "Make! %"
     elseif &ft == 'lisp'   | set makeprg=sbcl   | exec "Make! --script %"
     elseif &ft == 'go'     | set makeprg=go     | exec "Make! run %"
+    elseif &ft == 'php'    | set makeprg=php    | exec "Make! %"
     endif
 enddef
 
@@ -365,6 +367,7 @@ g:netrw_winsize = -28               # Absolute width of netrw window
 g:netrw_liststyle = 3               # Tree-view
 g:netrw_sort_sequence = '[\/]$,*'   # Sort is affecting only: directories on the top, files below
 g:netrw_browse_split = 4            # Use the previous window to open file
+g:netrw_fastbrowse = 0              # Always obtain fresh directory listings, never re-use them.
 
 # Regex-based text alignment (default: '=')
 command! -nargs=? -range Align AlignSection(<line1>, <line2>, '<args>')
@@ -402,15 +405,15 @@ def ToggleIndentGuides()
     set list!
 enddef
 
-function ToggleMaximizeSplit(zoom)
-    if exists("t:restore_zoom") && (a:zoom == v:true || t:restore_zoom.win != winnr())
+def ToggleMaximizeSplit(zoom: bool)
+    if exists("t:restore_zoom") && (zoom == v:true || t:restore_zoom.win != winnr())
         exec t:restore_zoom.cmd
         unlet t:restore_zoom
-    elseif a:zoom
-        let t:restore_zoom = { 'win': winnr(), 'cmd': winrestcmd() }
+    elseif zoom
+        t:restore_zoom = { 'win': winnr(), 'cmd': winrestcmd() }
         exec "normal \<C-W>\|\<C-W>_"
     endif
-endfunction
+enddef
 
 g:distractionFree = 0
 def DistractionFree()
@@ -767,7 +770,7 @@ nnoremap <silent><space>c<Bslash> :let tmp=@/<Bar>s:/:\\:ge<Bar>let @/=tmp<Bar>n
 nnoremap <space>. :find **
 
 # File search
-nnoremap <space>> :cd %:p:h<cr>:find <C-D>
+nnoremap <space>> :find <C-D>
 
 # Perform dot commands over visual selections
 xnoremap . :normal .<cr>
@@ -902,9 +905,10 @@ if has("gui_running")
     nnoremap <silent><space>tg :if &guioptions == '!ic' \| set go=!imTrL \| else \| set go=!ic \| endif<cr>
     nmap <silent><c-z> <Plug>(Multiterm)
     tmap <silent><c-z> <Plug>(Multiterm)
+    imap <silent><c-z> <Plug>(Multiterm)
 endif
 nnoremap <silent><c-q> :if empty(filter(getwininfo(), 'v:val.quickfix')) \| copen \| else \| cclose \| endif<cr>
-nnoremap <silent><space><space> <ScriptCmd>ToggleNetrw()<cr>
+nnoremap <silent><c-;> <ScriptCmd>ToggleNetrw()<cr>
 nnoremap <silent><space>t2 <Cmd>SetTab 2<cr>
 nnoremap <silent><space>t4 <Cmd>SetTab 4<cr>
 nnoremap <silent><space>t8 <Cmd>SetTab 8<cr>
