@@ -18,6 +18,7 @@ $GITCMD https://github.com/jpalardy/vim-slime.git
 $GITCMD https://github.com/habamax/vim-dir.git
 $GITCMD https://github.com/imranzero/smartpairs.vim.git
 $GITCMD https://github.com/imranzero/wintweak.gvim.git
+$GITCMD https://github.com/neoclide/coc.nvim.git
 
 $GITCMD https://github.com/mattn/emmet-vim.git
 $GITCMD https://github.com/fatih/vim-go.git

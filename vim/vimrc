@@ -4,7 +4,7 @@ vim9script
 # |  Essentials                                                      |
 # O------------------------------------------------------------------O
 set nocompatible encoding=utf-8 hidden confirm secure exrc
-\ path+=** noswapfile nobackup fileformats=unix,dos nrformats-=octal
+\ noswapfile nobackup fileformats=unix,dos nrformats-=octal
 \ nomodeline noshowmode hlsearch incsearch shortmess+=I shortmess-=S
 \ titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:~:.:h\")}/)%)\ %{getcwd()}\ @%{hostname()}
 \ autoread ttyfast lazyredraw notimeout ttimeout ttimeoutlen=200 belloff=all
@@ -23,6 +23,9 @@ set nocompatible encoding=utf-8 hidden confirm secure exrc
 # O------------------------------------------------------------------O
 # |  Plugins (with VIM8+ plugin manager)                             |
 # O------------------------------------------------------------------O
+# Non-deferred loading
+packadd coc.nvim                        # neoclide/coc.nvim
+
 # Deferred loading
 def Load_Plugins(t: number)
     packadd fzf | packadd fzf.vim       # junegunn/fzf
@@ -43,7 +46,7 @@ def Load_Plugins(t: number)
         augroup end
     packadd vim-polyglot                # sheerun/vim-polyglot
         command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
-    packadd vim-fugitive                # tpope/vim-fugitive
+    packadd emmet-vim                   # mattn/emmet-vim
     packadd vim-surround                # tpope/vim-surround
     packadd vim-repeat                  # tpope/vim-repeat
     packadd multiterm.vim               # chengzeyi/multiterm.vim
@@ -52,6 +55,7 @@ def Load_Plugins(t: number)
     packadd smartpairs.vim              # imranzero/smartpairs.vim
     packadd wintweak.gvim               # imranzero/wintweak.gvim
 enddef
+
 augroup USER_CMDS | autocmd!
     autocmd VimEnter * timer_start(20, function('Load_Plugins'))
 augroup END
@@ -767,7 +771,7 @@ nnoremap <silent><space>c/ :let tmp=@/<Bar>s:\\:/:ge<Bar>let @/=tmp<Bar>noh<cr>
 nnoremap <silent><space>c<Bslash> :let tmp=@/<Bar>s:/:\\:ge<Bar>let @/=tmp<Bar>noh<cr>
 
 # Fuzzy file search
-nnoremap <space>. :find **
+nnoremap <space>. :find **/**
 
 # File search
 nnoremap <space>> :find <C-D>
