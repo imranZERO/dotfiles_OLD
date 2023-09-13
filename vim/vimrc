@@ -46,6 +46,9 @@ def Load_Plugins(t: number)
         augroup end
     packadd vim-polyglot                # sheerun/vim-polyglot
         command! -bar -nargs=* Retab set ts=4 sw=4 sts=4 et | retab
+    packadd vim-prettier                # prettier/vim-prettier
+        g:prettier#exec_cmd_path = "~/vimfiles/pack/dist/opt/vim-prettier/node_modules/.bin/prettier"
+        g:prettier#config#use_tabs = 'true'
     packadd emmet-vim                   # mattn/emmet-vim
     packadd vim-surround                # tpope/vim-surround
     packadd vim-repeat                  # tpope/vim-repeat
@@ -84,9 +87,15 @@ augroup FILETYPE_C | autocmd!
 augroup END
 
 augroup FILETYPE_GO | autocmd!
-    # packadd vim-go          # fatih/vim-go
-    packadd vim-go-syntax     # charlespascoe/vim-go-syntax
-    autocmd FileType go setlocal noexpandtab
+    autocmd FileType go
+        \ # packadd vim-go             # fatih/vim-go
+        \| packadd vim-go-syntax     # charlespascoe/vim-go-syntax
+        \| autocmd FileType go setlocal noexpandtab
+augroup END
+
+augroup FILETYPE_JS | autocmd!
+    autocmd FileType javascript
+        \ inoreabbrev <buffer> clg console.log();<Left><Left>
 augroup END
 
 # Alternate C/C++ source/header
@@ -131,15 +140,13 @@ def Format()
         var a3 = "--max-code-length=80 --break-after-logical --suffix=none"
         exec "Make" a1 a2 a3 "%"
     elseif &ft == 'go' | set makeprg=gofmt | exec "Make -s -w %"
-    elseif &ft == 'javascript' | set makeprg=js-beautify | exec "Make -rn -t %"
-    elseif &ft == 'html' | set makeprg=html-beautify | exec "Make -rn -t %"
-    elseif &ft == 'css' | set makeprg=css-beautify | exec "Make -rn -t %"
+    elseif &ft == 'javascript' || &ft == 'javascriptreact' || &ft == 'html' || &ft == 'css' || &ft == 'json' || &ft == 'markdown'
+        exec "PrettierAsync"
     endif
 enddef
 
 def Build()
-    exec "update"
-    if &ft == 'make' || &ft == 'c' || &ft == 'cpp' || &ft == 'go'
+    if !empty(expand(glob("makefile")))
         set makeprg=make | exec "Make!" | # ! prevents jumping to location of first error
     endif
 enddef

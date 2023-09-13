@@ -29,10 +29,10 @@ doskey hss=hugo serve --noHTTPCache --bind 0.0.0.0 $*
 doskey liveserve=browser-sync start --server -f -w $*
 doskey cloc=tokei $*
 
-doskey php8=D:\dev\php-8.2.3\php $*
-doskey php7=D:\dev\php-7.4.33\php $*
+doskey php8=C:\dev\php-8.2.3\php $*
+doskey php7=C:\dev\php-7.4.33\php $*
 doskey composer=php C:\util\composer.phar $*
 
-doskey java=D:\dev\jdk\bin\java $*
+doskey java=C:\dev\jdk\bin\java $*
 
 doskey aastyle=C:\util\astyle --style=kr --indent=tab --convert-tabs --break-blocks --pad-oper --pad-header --unpad-paren --align-pointer=name --attach-return-type --indent-preproc-block --max-code-length=80 --break-after-logical --suffix=none $*
