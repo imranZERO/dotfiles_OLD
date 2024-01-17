@@ -94,8 +94,8 @@ augroup FILETYPE_GO | autocmd!
 augroup END
 
 augroup FILETYPE_JS | autocmd!
-    autocmd FileType javascript
-        \ inoreabbrev <buffer> clg console.log();<Left><Left>
+    autocmd FileType javascript,javascriptreact
+        \ inoreabbrev <buffer> clg console.log()<Left>
 augroup END
 
 # Alternate C/C++ source/header
@@ -187,7 +187,7 @@ if has("gui_running")
     def FontMenu(id: number, result: number)
         if     result ==  1 | ToggleBoldFont()
         elseif result ==  2 | set linespace=1 guifont=Consolas:h11
-        elseif result ==  3 | set linespace=1 guifont=Terminus:h11
+        elseif result ==  3 | set linespace=1 guifont=Terminus_(TTF)_for_Windows:h11
         elseif result ==  4 | set linespace=0 guifont=Fira_Mono:h11
         elseif result ==  5 | set linespace=1 guifont=Victor_Mono:h11
         elseif result ==  6 | set linespace=1 guifont=Iosevka_Fixed:h11
@@ -197,7 +197,7 @@ if has("gui_running")
         elseif result == 10 | set linespace=0 guifont=FixedSys
         endif
     enddef
-    FontMenu(0, 6)
+    FontMenu(0, 7)
 
     g:ScrollBar = 0
     set guioptions=!ic
@@ -549,7 +549,9 @@ def g:Tabline(): string
         s ..= '%' .. tabNum .. '  [' .. tabNum .. '] ' .. fname .. ' '
         s ..= bufmodified == 1 ? '+ ' : ''
     endfor
-    s ..= '%*' .. '%<' .. '%=' .. '%#StatusLine#' .. ' %{resolve(expand("%:p:h"))} %*'
+    s ..= '%*' .. '%<' .. '%=' .. '%#StatusLine#'
+    s ..= ' [%{&fileformat}] [%{strlen(&fenc)?&fenc:"none"}] [%{g:FileSize()}] '
+
     return s
 enddef
 
@@ -565,16 +567,18 @@ def g:Statusline(): string
     s ..= '%<'  # Truncate
     s ..= '%#StatusLineNC#'  # Highlight
     # s ..= ' [%n]'  # Buffer number
-    s ..= ' %t'  # File name
+    # s ..= ' %t'  # File name
     # s ..= ' %f'  # File path relative
-    # s ..= ' %.50F'  # File path full (with char limit)
-    s ..= ' [%{&fileformat}]'  # File format
-    s ..= ' [%{strlen(&fenc)?&fenc:"none"}]'  # File encoding
-    s ..= ' [%{g:FileSize()}]'
-    # s ..= ' ≣ %02p%%'  # Percentage
+    s ..= ' %F'  # File path absolute
+    # s ..= ' %.60F'  # File path absolute (with char limit)
+    # s ..= ' %{resolve(expand("%:p:h"))} %*'  # File path full (resolved)
+    # s ..= ' [%{&fileformat}]'  # File format
+    # s ..= ' [%{strlen(&fenc)?&fenc:"none"}]'  # File encoding
+    # s ..= ' [%{g:FileSize()}]'
     s ..= ' %r%m%h'  # Readonly,modified,help
     s ..= '%=' # Right align
     s ..= '%{exists("g:loaded_fugitive")?FugitiveHead():""}'  # Git branch
+    s ..= ' ≣ %02p%%'  # Percentage
     s ..= ' %*'  # Default highlight
     s ..= '%{exists("g:asyncdo")?"[running]":""}'  # AsyncDo status
     s ..= ' %{strlen(&ft)?&ft:"none"} |'  # File type
@@ -707,9 +711,9 @@ nnoremap <silent><c-f> <ScriptCmd>SmoothScroll('d', &scroll * 2, 0, 4)<cr>
 nnoremap <space>G <Cmd>w<cr>
 nnoremap <silent><space>q :q<cr>
 tnoremap <silent><c-w>q exit<cr>
-nnoremap <silent><F5> <ScriptCmd>silent Run()<cr>
-nnoremap <silent><F6> <ScriptCmd>silent! Format()<cr>
-nnoremap <silent><F7> <ScriptCmd>silent Build()<cr>
+nnoremap <F5> <ScriptCmd>silent Run()<cr>
+nnoremap <F6> <ScriptCmd>silent! Format()<cr>
+nnoremap <F7> <ScriptCmd>silent Build()<cr>
 
 # Swap ` and ' for marks
 nnoremap ' `
